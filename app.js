@@ -33,7 +33,7 @@ const isoDate=()=>new Date().toISOString().slice(0,10);
 const fmtDate=v=>v?new Intl.DateTimeFormat("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(v)):"—";
 function status(id,msg,type=""){const el=$(id);el.textContent=msg;el.style.color=type==="error"?"#991b1b":type==="ok"?"#166534":"";}
 
-for(let w=4;w<=12;w++){const o=document.createElement("option");o.value=w;o.textContent=`Semana ${w}`;$("weekSelect").appendChild(o);} 
+for(let w=4;w<=12;w++){const o=document.createElement("option");o.value=w;o.textContent=`Semana ${w}`;$("weekSelect").appendChild(o);}
 $("weekSelect").value="4";$("measureDate").value=isoDate();$("nutritionDate").value=isoDate();$("recoveryDate").value=isoDate();
 
 document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");$("pageTitle").textContent=btn.dataset.title;}));
@@ -48,23 +48,107 @@ $("signupBtn").addEventListener("click",async()=>{const email=$("emailInput").va
 $("logoutBtn").addEventListener("click",()=>supabase.auth.signOut());
 supabase.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;showState();});
 
-async function latestExerciseSummary(name){
-  const {data}=await supabase.from("workout_sets").select("weight_kg,reps,completed_at,set_number").eq("user_id",currentUser.id).eq("exercise_name",name).order("completed_at",{ascending:false}).limit(8);
-  if(!data?.length)return "Sin histórico";
-  const day=data[0].completed_at.slice(0,10);return data.filter(x=>x.completed_at.slice(0,10)===day).sort((a,b)=>a.set_number-b.set_number).map(x=>`${x.weight_kg??0} kg × ${x.reps??0}`).join(" · ");
+function groupHistory(rows){
+  const map=new Map();
+  for(const row of rows||[]){
+    const key=row.workout_session_id || row.completed_at;
+    if(!map.has(key)) map.set(key,{id:key,date:row.completed_at,sets:[]});
+    const g=map.get(key);
+    if(new Date(row.completed_at)>new Date(g.date)) g.date=row.completed_at;
+    g.sets.push(row);
+  }
+  return [...map.values()].map(g=>{g.sets.sort((a,b)=>a.set_number-b.set_number);return g;}).sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+
+async function getExerciseHistory(name, limit=100){
+  const {data,error}=await supabase.from("workout_sets")
+    .select("workout_session_id,weight_kg,reps,rpe,set_number,completed_at")
+    .eq("user_id",currentUser.id).eq("exercise_name",name)
+    .order("completed_at",{ascending:false}).limit(limit);
+  if(error){console.error(error);return [];}
+  return groupHistory(data);
+}
+
+function sessionSummary(session){
+  if(!session) return "Sin histórico";
+  return session.sets.map(x=>`${x.weight_kg??0} kg × ${x.reps??0}${x.rpe?` (RPE ${x.rpe})`:""}`).join(" · ");
+}
+
+function allPlanExerciseNames(){
+  const set=new Set();
+  for(let w=4;w<=12;w++){
+    for(const s of ["leg","chest","back","homeA","homeB"]){
+      for(const ex of planFor(s,w).exercises) set.add(ex[0]);
+    }
+  }
+  return set;
+}
+
+async function populateHistoryExercises(){
+  const names=allPlanExerciseNames();
+  const {data}=await supabase.from("workout_sets").select("exercise_name").eq("user_id",currentUser.id).limit(1000);
+  (data||[]).forEach(x=>names.add(x.exercise_name));
+  const select=$("historyExerciseSelect");
+  const previous=select.value;
+  select.innerHTML="";
+  [...names].sort((a,b)=>a.localeCompare(b,"es")).forEach(name=>{const o=document.createElement("option");o.value=name;o.textContent=name;select.appendChild(o);});
+  if(previous && names.has(previous)) select.value=previous;
+}
+
+async function renderExerciseHistory(name){
+  if(!name) return;
+  const history=await getExerciseHistory(name,200);
+  const el=$("exerciseHistory"),stats=$("exerciseStats");
+  if(!history.length){el.textContent="No hay sesiones guardadas para este ejercicio.";stats.innerHTML="";return;}
+  const allSets=history.flatMap(h=>h.sets).filter(s=>s.weight_kg!=null||s.reps!=null);
+  const maxWeight=Math.max(...allSets.map(s=>Number(s.weight_kg||0)));
+  const bestSet=allSets.reduce((best,s)=>{
+    const score=Number(s.weight_kg||0)*Number(s.reps||0);
+    return score>(best.score||-1)?{score,s}:best;
+  },{}).s;
+  stats.innerHTML=`<div class="stat"><span>Sesiones</span><strong>${history.length}</strong></div><div class="stat"><span>Mayor carga</span><strong>${maxWeight} kg</strong></div><div class="stat"><span>Mejor serie</span><strong>${bestSet?`${bestSet.weight_kg??0} × ${bestSet.reps??0}`:"—"}</strong></div>`;
+  el.innerHTML="";
+  history.slice(0,12).forEach((h,i)=>{
+    const volume=h.sets.reduce((sum,s)=>sum+Number(s.weight_kg||0)*Number(s.reps||0),0);
+    const d=document.createElement("div");d.className="list-item";
+    d.innerHTML=`<strong>${fmtDate(h.date)}${i===0?' · última sesión':''}</strong><br><span>${sessionSummary(h)}</span>${volume?`<br><span>Volumen: ${Math.round(volume).toLocaleString('es-ES')} kg</span>`:""}`;
+    el.appendChild(d);
+  });
 }
 
 async function renderWorkout(){
-  if(!currentUser)return;const week=Number($("weekSelect").value),session=$("sessionSelect").value,plan=planFor(session,week);$("todayWorkout").textContent=plan.title;$("todayWorkoutHint").textContent=`Semana ${week}`;$("warmupCard").classList.remove("hidden");$("warmupCard").innerHTML=`<div class="card-title">Calentamiento / pauta</div><div>${plan.warmup}</div>`;const list=$("exerciseList");list.innerHTML="";
-  for(const ex of plan.exercises){const [name,sets,reps,rest]=ex;const card=document.createElement("div");card.className="exercise-card";const last=await latestExerciseSummary(name);card.innerHTML=`<div class="exercise-head"><div><div class="exercise-name">${name}</div><div class="last-session">Última vez: ${last}</div></div><div class="exercise-target">${sets} series · ${reps}<br>Descanso ${rest}</div></div><div class="set-box"></div>`;const box=card.querySelector(".set-box");for(let s=1;s<=Number(sets);s++){const row=document.createElement("div");row.className="set-row";row.dataset.exercise=name;row.dataset.set=s;row.innerHTML=`<span class="set-label">S${s}</span><input class="kg" type="number" min="0" max="500" step="0.5" placeholder="kg"><input class="reps" type="number" min="0" max="200" step="1" placeholder="reps"><input class="rpe" type="number" min="1" max="10" step="0.5" placeholder="RPE">`;box.appendChild(row);}list.appendChild(card);}
+  if(!currentUser)return;
+  const week=Number($("weekSelect").value),session=$("sessionSelect").value,plan=planFor(session,week);
+  $("todayWorkout").textContent=plan.title;$("todayWorkoutHint").textContent=`Semana ${week}`;$("warmupCard").classList.remove("hidden");$("warmupCard").innerHTML=`<div class="card-title">Calentamiento / pauta</div><div>${plan.warmup}</div>`;
+  const list=$("exerciseList");list.innerHTML="";
+  for(const ex of plan.exercises){
+    const [name,sets,reps,rest]=ex;
+    const history=await getExerciseHistory(name,60);
+    const latest=history[0]||null;
+    const card=document.createElement("div");card.className="exercise-card";
+    card.innerHTML=`<div class="exercise-head"><div><div class="exercise-name">${name}</div><div class="last-session">Última vez: ${sessionSummary(latest)}</div><div class="exercise-tools"><button class="btn ghost tiny view-history" type="button">Ver historial</button></div></div><div class="exercise-target">${sets} series · ${reps}<br>Descanso ${rest}</div></div><div class="set-box"></div>${latest?'<div class="prefill-note">He precargado la última sesión para que solo tengas que ajustar lo que cambie hoy.</div>':''}`;
+    card.querySelector('.view-history').addEventListener('click',async()=>{const sel=$("historyExerciseSelect");sel.value=name;await renderExerciseHistory(name);sel.scrollIntoView({behavior:'smooth',block:'center'});});
+    const box=card.querySelector(".set-box");
+    for(let s=1;s<=Number(sets);s++){
+      const prev=latest?.sets.find(x=>Number(x.set_number)===s);
+      const row=document.createElement("div");row.className="set-row";row.dataset.exercise=name;row.dataset.set=s;
+      row.innerHTML=`<span class="set-label">S${s}</span><input class="kg" type="number" min="0" max="500" step="0.5" placeholder="kg" value="${prev?.weight_kg??''}"><input class="reps" type="number" min="0" max="200" step="1" placeholder="reps" value="${prev?.reps??''}"><input class="rpe" type="number" min="1" max="10" step="0.5" placeholder="RPE" value="${prev?.rpe??''}">`;
+      box.appendChild(row);
+    }
+    list.appendChild(card);
+  }
 }
 $("weekSelect").addEventListener("change",renderWorkout);$("sessionSelect").addEventListener("change",renderWorkout);
+$("historyExerciseSelect").addEventListener("change",()=>renderExerciseHistory($("historyExerciseSelect").value));
+$("refreshHistoryBtn").addEventListener("click",()=>renderExerciseHistory($("historyExerciseSelect").value));
 
 $("saveWorkoutBtn").addEventListener("click",async()=>{
-  status("workoutMsg","Guardando...");const week=Number($("weekSelect").value),plan=planFor($("sessionSelect").value,week);const {data:ws,error:wErr}=await supabase.from("workout_sessions").insert({user_id:currentUser.id,week_number:week,title:plan.title,started_at:new Date().toISOString(),completed_at:new Date().toISOString(),notes:$("workoutNotes").value.trim()||null}).select("id").single();if(wErr)return status("workoutMsg",wErr.message,"error");
+  status("workoutMsg","Guardando...");const week=Number($("weekSelect").value),plan=planFor($("sessionSelect").value,week);
+  const {data:ws,error:wErr}=await supabase.from("workout_sessions").insert({user_id:currentUser.id,week_number:week,title:plan.title,started_at:new Date().toISOString(),completed_at:new Date().toISOString(),notes:$("workoutNotes").value.trim()||null}).select("id").single();
+  if(wErr)return status("workoutMsg",wErr.message,"error");
   const payload=[...document.querySelectorAll("#exerciseList .set-row")].map(row=>{const kg=row.querySelector(".kg").value,reps=row.querySelector(".reps").value,rpe=row.querySelector(".rpe").value;return{user_id:currentUser.id,workout_session_id:ws.id,exercise_name:row.dataset.exercise,set_number:Number(row.dataset.set),weight_kg:kg===""?null:Number(kg),reps:reps===""?null:Number(reps),rpe:rpe===""?null:Number(rpe)};}).filter(x=>x.weight_kg!==null||x.reps!==null||x.rpe!==null);
   if(payload.length){const {error}=await supabase.from("workout_sets").insert(payload);if(error)return status("workoutMsg",error.message,"error");}
-  status("workoutMsg","Entrenamiento guardado ✓","ok");$("workoutNotes").value="";await renderRecentWorkouts();await renderWorkout();
+  status("workoutMsg","Entrenamiento guardado ✓","ok");$("workoutNotes").value="";await Promise.all([renderRecentWorkouts(),populateHistoryExercises()]);await renderWorkout();await renderExerciseHistory($("historyExerciseSelect").value);
 });
 
 async function renderRecentWorkouts(){const {data}=await supabase.from("workout_sessions").select("title,week_number,completed_at").eq("user_id",currentUser.id).order("completed_at",{ascending:false}).limit(6);const el=$("recentWorkouts");if(!data?.length){el.textContent="Todavía no hay entrenamientos.";return;}el.innerHTML="";data.forEach(x=>{const d=document.createElement("div");d.className="list-item";d.innerHTML=`<strong>${x.title}</strong><br><span>Semana ${x.week_number??"—"} · ${fmtDate(x.completed_at)}</span>`;el.appendChild(d);});}
@@ -77,7 +161,7 @@ $("saveNutritionBtn").addEventListener("click",async()=>{status("nutritionMsg","
 
 $("saveRecoveryBtn").addEventListener("click",async()=>{status("recoveryMsg","Guardando...");const payload={user_id:currentUser.id,log_date:$("recoveryDate").value,right_knee:Number($("rightKneeInput").value||0),left_knee:Number($("leftKneeInput").value||0),right_rectus_femoris:Number($("rightRFInput").value||0),left_rectus_femoris:Number($("leftRFInput").value||0),right_rectus_tightness:$("rightTightnessInput").value,energy:$("energyInput").value===""?null:Number($("energyInput").value),sleep_hours:$("sleepInput").value===""?null:Number($("sleepInput").value),notes:$("recoveryNotes").value.trim()||null};const {error}=await supabase.from("recovery_logs").upsert(payload,{onConflict:"user_id,log_date"});if(error)return status("recoveryMsg",error.message,"error");status("recoveryMsg","Recuperación guardada ✓","ok");});
 
-async function refreshAll(){await Promise.all([renderMeasurements(),renderRecentWorkouts()]);await renderWorkout();}
+async function refreshAll(){await Promise.all([renderMeasurements(),renderRecentWorkouts(),populateHistoryExercises()]);if($("historyExerciseSelect").value)await renderExerciseHistory($("historyExerciseSelect").value);await renderWorkout();}
 
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).catch(()=>{}));
 const {data}=await supabase.auth.getSession();currentUser=data.session?.user||null;await showState();

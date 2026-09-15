@@ -23,3 +23,11 @@ La primera vez pulsa "Crear cuenta". Si Supabase tiene confirmación de email ac
 
 ## Seguridad
 `config.js` contiene una Publishable Key de Supabase, diseñada para cliente. No pongas nunca una Secret Key ni `service_role` en el repositorio.
+
+
+## Versión 2
+- Historial por ejercicio.
+- Precarga automática de kg/reps/RPE de la última sesión.
+- Botón “Ver historial” en cada ejercicio.
+- Estadísticas de sesiones, mayor carga y mejor serie.
+- Service worker actualizado para recibir cambios sin quedarse anclado en la versión antigua.
