@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
-  <meta name="description" content="Seguimiento personal de entrenamiento, progreso, dieta y recuperación.">
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="description" content="MyFit Tracker: entrenamiento, progreso, dieta y recuperación.">
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
@@ -13,57 +13,342 @@
 </head>
 <body>
 <div id="app">
+
   <section id="authView" class="auth-shell">
-    <div class="auth-card">
-      <div class="logo-mark">MF</div>
-      <h1>MyFit Tracker</h1>
-      <p class="muted">Entrenamiento, progreso, dieta y recuperación.</p>
-      <form id="authForm" class="stack">
-        <label>Email<input id="emailInput" type="email" autocomplete="email" required></label>
-        <label>Contraseña<input id="passwordInput" type="password" minlength="6" required></label>
-        <div class="row gap"><button class="btn primary" type="submit">Entrar</button><button id="signupBtn" class="btn secondary" type="button">Crear cuenta</button></div>
-        <p id="authMsg" class="status"></p>
+    <div class="auth-card glass">
+      <div class="brand-row">
+        <div class="brand-mark">MF</div>
+        <div>
+          <div class="eyebrow">MYFIT</div>
+          <h1>Tracker</h1>
+        </div>
+      </div>
+      <h2 class="auth-title">Tu progreso, sin ruido.</h2>
+      <p class="muted">Entrenamiento, físico, dieta y recuperación. Todo queda guardado.</p>
+
+      <form id="authForm" class="stack auth-form">
+        <label>Email
+          <input id="emailInput" type="email" autocomplete="email" required placeholder="tu@email.com">
+        </label>
+        <label>Contraseña
+          <input id="passwordInput" type="password" minlength="6" autocomplete="current-password" required placeholder="••••••••">
+        </label>
+        <button class="btn primary wide" type="submit">Entrar</button>
+        <button id="signupBtn" class="btn secondary wide" type="button">Crear cuenta</button>
+        <p id="authMsg" class="status" aria-live="polite"></p>
       </form>
     </div>
   </section>
 
   <section id="mainView" class="hidden">
-    <header class="topbar"><div><div class="eyebrow">MYFIT TRACKER</div><h1 id="pageTitle">Inicio</h1></div><button id="logoutBtn" class="btn ghost small" type="button">Salir</button></header>
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">MYFIT TRACKER</div>
+        <h1 id="pageTitle">Inicio</h1>
+      </div>
+      <button id="logoutBtn" class="icon-btn" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M14 8l4 4-4 4M18 12H9"/></svg>
+      </button>
+    </header>
+
     <main class="content">
+
+      <!-- HOME -->
       <section id="homePage" class="page active">
-        <div class="hero card"><div><div class="eyebrow">OBJETIVO</div><h2>84 kg · Talla 42</h2><p class="muted">3 días gym + máximo 2 sesiones cortas en casa.</p></div><div class="hero-stat"><span class="muted">Peso actual</span><strong id="homeWeight">—</strong></div></div>
-        <div class="grid two"><div class="card"><div class="card-title">Entreno seleccionado</div><div id="todayWorkout" class="big-value">—</div><p id="todayWorkoutHint" class="muted">Semana 4</p></div><div class="card"><div class="card-title">Última cintura</div><div id="homeWaist" class="big-value">—</div><p class="muted">Registra una medición en Progreso.</p></div></div>
-        <div class="card"><div class="card-title">Semana base</div><div class="week-strip"><span>Lun · Pierna</span><span>Mar · Casa corta</span><span>Mié · Pecho</span><span>Jue · Casa corta</span><span>Vie · Espalda</span><span>Fin de semana · pasos + recuperación</span></div></div>
+        <div class="hero-card card">
+          <div class="hero-copy">
+            <span class="pill accent-pill">OBJETIVO</span>
+            <h2>84 kg · Talla 42</h2>
+            <p class="muted">Consistencia &gt; perfección. 3 gym + máximo 2 sesiones cortas.</p>
+          </div>
+          <div class="goal-ring" aria-label="Progreso hacia 84 kg">
+            <svg viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="48"></circle>
+              <circle id="goalRing" class="ring-progress" cx="60" cy="60" r="48"></circle>
+            </svg>
+            <div class="goal-ring-center">
+              <strong id="homeWeight">—</strong>
+              <span>actual</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <div class="metric-card">
+            <span class="metric-label">Cintura</span>
+            <strong id="homeWaist">—</strong>
+            <span id="waistTrend" class="trend neutral">Sin datos</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Grasa</span>
+            <strong id="homeFat">—</strong>
+            <span id="fatTrend" class="trend neutral">Sin datos</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Proteína hoy</span>
+            <strong id="homeProtein">—</strong>
+            <div class="mini-progress"><span id="homeProteinBar"></span></div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Recuperación</span>
+            <strong id="homeRecovery">—</strong>
+            <span id="homeRecoveryHint" class="trend neutral">Sin registro</span>
+          </div>
+        </div>
+
+        <div class="card action-card">
+          <div class="action-card-copy">
+            <span class="eyebrow">PRÓXIMA SESIÓN</span>
+            <h3 id="todayWorkout">Pecho prioritario</h3>
+            <p id="todayWorkoutHint" class="muted">Semana 4</p>
+          </div>
+          <button id="goTrainBtn" class="btn primary" type="button">Entrenar ahora</button>
+        </div>
+
+        <div class="section-head">
+          <div><span class="eyebrow">ACTIVIDAD</span><h3>Últimos entrenamientos</h3></div>
+        </div>
+        <div id="homeRecentWorkouts" class="timeline card">
+          <p class="muted">Todavía no hay entrenamientos.</p>
+        </div>
       </section>
 
+      <!-- TRAINING -->
       <section id="trainingPage" class="page">
-        <div class="card"><div class="grid two"><label>Semana<select id="weekSelect"></select></label><label>Sesión<select id="sessionSelect"><option value="leg">Gym 1 · Pierna + glúteo</option><option value="chest">Gym 2 · Pecho prioritario</option><option value="back">Gym 3 · Espalda + dorsal</option><option value="homeA">Casa A · 20–25 min</option><option value="homeB">Casa B · 15–20 min</option></select></label></div></div>
-        <div id="warmupCard" class="card callout hidden"></div>
+        <div class="session-picker card">
+          <div class="grid two">
+            <label>Semana
+              <select id="weekSelect"></select>
+            </label>
+            <label>Sesión
+              <select id="sessionSelect">
+                <option value="leg">Pierna + glúteo</option>
+                <option value="chest">Pecho prioritario</option>
+                <option value="back">Espalda + dorsal</option>
+                <option value="homeA">Casa A · 20–25 min</option>
+                <option value="homeB">Casa B · 15–20 min</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="sessionHero" class="session-hero card">
+          <div>
+            <span class="eyebrow">SESIÓN</span>
+            <h2 id="sessionTitle">—</h2>
+            <p id="sessionSubtitle" class="muted">—</p>
+          </div>
+          <span id="sessionVolumeBadge" class="pill">0 series</span>
+        </div>
+
+        <details id="warmupCard" class="card details-card">
+          <summary>
+            <span>Calentamiento y pauta</span>
+            <span class="summary-icon">+</span>
+          </summary>
+          <div id="warmupText" class="details-body muted"></div>
+        </details>
+
         <div id="exerciseList" class="stack"></div>
-        <div class="card"><label>Notas de la sesión<textarea id="workoutNotes" rows="3" placeholder="Sensaciones, molestias, energía..."></textarea></label><div class="row wrap gap top-gap"><button id="saveWorkoutBtn" class="btn primary" type="button">Guardar entrenamiento</button><span id="workoutMsg" class="status"></span></div></div>
-        <div class="card"><div class="card-title">Historial por ejercicio</div><div class="grid two"><label>Ejercicio<select id="historyExerciseSelect"></select></label><div class="history-actions"><button id="refreshHistoryBtn" class="btn secondary" type="button">Ver historial</button></div></div><div id="exerciseStats" class="history-stats top-gap"></div><div id="exerciseHistory" class="list muted top-gap">Selecciona un ejercicio para ver tus sesiones anteriores.</div></div>
-        <div class="card"><div class="card-title">Últimos entrenamientos</div><div id="recentWorkouts" class="list muted">Todavía no hay entrenamientos.</div></div>
+
+        <div class="card">
+          <label>Notas de la sesión
+            <textarea id="workoutNotes" rows="3" placeholder="Sensaciones, técnica, molestias, energía..."></textarea>
+          </label>
+          <div class="row wrap gap top-gap">
+            <button id="saveWorkoutBtn" class="btn primary" type="button">Finalizar y guardar</button>
+            <span id="workoutMsg" class="status" aria-live="polite"></span>
+          </div>
+        </div>
       </section>
 
+      <!-- PROGRESS -->
       <section id="progressPage" class="page">
-        <div class="card"><div class="card-title">Nueva medición</div><form id="measurementForm" class="stack"><div class="grid two"><label>Fecha<input id="measureDate" type="date" required></label><label>Peso (kg)<input id="weightInput" type="number" min="40" max="200" step="0.1" required></label><label>Grasa corporal (%)<input id="fatInput" type="number" min="1" max="70" step="0.1"></label><label>Grasa visceral<input id="visceralInput" type="number" min="0" max="100" step="0.1"></label><label>Masa muscular (kg)<input id="muscleInput" type="number" min="0" max="150" step="0.1"></label><label>Agua corporal (%)<input id="waterPctInput" type="number" min="0" max="100" step="0.1"></label><label>Cintura (cm)<input id="waistInput" type="number" min="40" max="200" step="0.1"></label><label>Cadera (cm)<input id="hipInput" type="number" min="40" max="200" step="0.1"></label><label>Muslo alto (cm)<input id="thighInput" type="number" min="20" max="120" step="0.1"></label></div><button class="btn primary" type="submit">Guardar medición</button><span id="measurementMsg" class="status"></span></form></div>
-        <div class="grid three"><div class="card metric"><span>Último peso</span><strong id="metricWeight">—</strong></div><div class="card metric"><span>Cintura</span><strong id="metricWaist">—</strong></div><div class="card metric"><span>Grasa</span><strong id="metricFat">—</strong></div></div>
-        <div class="card"><div class="card-title">Histórico</div><div id="measurementHistory" class="list muted">Todavía no hay mediciones.</div></div>
+        <div class="section-head">
+          <div><span class="eyebrow">EVOLUCIÓN</span><h2>Progreso físico</h2></div>
+          <button id="toggleMeasureFormBtn" class="btn secondary small" type="button">+ Medición</button>
+        </div>
+
+        <div class="quick-grid">
+          <div class="metric-card"><span class="metric-label">Peso</span><strong id="metricWeight">—</strong><span id="metricWeightDelta" class="trend neutral">—</span></div>
+          <div class="metric-card"><span class="metric-label">Cintura</span><strong id="metricWaist">—</strong><span id="metricWaistDelta" class="trend neutral">—</span></div>
+          <div class="metric-card"><span class="metric-label">Grasa</span><strong id="metricFat">—</strong><span id="metricFatDelta" class="trend neutral">—</span></div>
+          <div class="metric-card"><span class="metric-label">Objetivo</span><strong>84 kg</strong><span class="trend accent-text">Talla 42</span></div>
+        </div>
+
+        <div class="chart-card card">
+          <div class="chart-head"><div><span class="eyebrow">TENDENCIA</span><h3>Peso</h3></div><span id="weightChartRange" class="pill">Últimas 12</span></div>
+          <svg id="weightChart" class="line-chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-label="Gráfica de peso"></svg>
+        </div>
+
+        <div class="chart-card card">
+          <div class="chart-head"><div><span class="eyebrow">TENDENCIA</span><h3>Cintura</h3></div><span class="pill">cm</span></div>
+          <svg id="waistChart" class="line-chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-label="Gráfica de cintura"></svg>
+        </div>
+
+        <div id="measurementFormCard" class="card hidden">
+          <div class="card-title">Nueva medición</div>
+          <form id="measurementForm" class="stack">
+            <div class="grid two">
+              <label>Fecha<input id="measureDate" type="date" required></label>
+              <label>Peso (kg)<input id="weightInput" type="number" min="40" max="200" step="0.1" required></label>
+              <label>Grasa corporal (%)<input id="fatInput" type="number" min="1" max="70" step="0.1"></label>
+              <label>Grasa visceral<input id="visceralInput" type="number" min="0" max="100" step="0.1"></label>
+              <label>Masa muscular (kg)<input id="muscleInput" type="number" min="0" max="150" step="0.1"></label>
+              <label>Agua corporal (%)<input id="waterPctInput" type="number" min="0" max="100" step="0.1"></label>
+              <label>Cintura (cm)<input id="waistInput" type="number" min="40" max="200" step="0.1"></label>
+              <label>Cadera (cm)<input id="hipInput" type="number" min="40" max="200" step="0.1"></label>
+              <label>Muslo alto (cm)<input id="thighInput" type="number" min="20" max="120" step="0.1"></label>
+            </div>
+            <div class="row wrap gap">
+              <button class="btn primary" type="submit">Guardar medición</button>
+              <span id="measurementMsg" class="status"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Histórico de medidas</div>
+          <div id="measurementHistory" class="data-list muted">Todavía no hay mediciones.</div>
+        </div>
       </section>
 
+      <!-- DIET -->
       <section id="dietPage" class="page">
-        <div class="card"><div class="card-title">Registro diario</div><div class="grid two"><label>Fecha<input id="nutritionDate" type="date"></label><label>Calorías<input id="caloriesInput" type="number" min="0" max="6000" step="10" placeholder="1850"></label><label>Proteína (g)<input id="proteinInput" type="number" min="0" max="400" step="1" placeholder="175"></label><label>Carbohidratos (g)<input id="carbsInput" type="number" min="0" max="600" step="1"></label><label>Grasas (g)<input id="fatMacroInput" type="number" min="0" max="300" step="1"></label><label>Agua (L)<input id="waterInput" type="number" min="0" max="10" step="0.1" placeholder="3.0"></label><label>Ayuno (h)<input id="fastingInput" type="number" min="0" max="24" step="0.5" placeholder="14"></label></div><div class="checks top-gap"><label><input id="creatineCheck" type="checkbox"> Creatina 5 g</label><label><input id="d3Check" type="checkbox"> D3 + K2</label><label><input id="magnesiumCheck" type="checkbox"> Magnesio</label></div><label class="top-gap">Notas<textarea id="nutritionNotes" rows="3"></textarea></label><div class="row wrap gap top-gap"><button id="saveNutritionBtn" class="btn primary" type="button">Guardar día</button><span id="nutritionMsg" class="status"></span></div></div>
-        <div class="card"><div class="card-title">Objetivo base</div><div class="target-grid"><div><strong>170–180 g</strong><span>proteína</span></div><div><strong>1.750–1.950</strong><span>kcal orientativas</span></div><div><strong>2,5–3 L</strong><span>agua</span></div><div><strong>14/10</strong><span>ayuno opcional</span></div></div></div>
+        <div class="section-head">
+          <div><span class="eyebrow">HOY</span><h2>Dieta y adherencia</h2></div>
+          <input id="nutritionDate" class="compact-date" type="date" aria-label="Fecha de nutrición">
+        </div>
+
+        <div class="nutrition-rings">
+          <div class="nutrition-ring card">
+            <div class="circle-meter" style="--p:0" id="proteinCircle"><div><strong id="proteinRingValue">0</strong><span>/175 g</span></div></div>
+            <span>Proteína</span>
+          </div>
+          <div class="nutrition-ring card">
+            <div class="circle-meter secondary-meter" style="--p:0" id="calorieCircle"><div><strong id="calorieRingValue">0</strong><span>/1850</span></div></div>
+            <span>Calorías</span>
+          </div>
+          <div class="nutrition-ring card">
+            <div class="circle-meter third-meter" style="--p:0" id="waterCircle"><div><strong id="waterRingValue">0</strong><span>/3 L</span></div></div>
+            <span>Agua</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="grid two">
+            <label>Calorías<input id="caloriesInput" type="number" min="0" max="6000" step="10" placeholder="1850"></label>
+            <label>Proteína (g)<input id="proteinInput" type="number" min="0" max="400" step="1" placeholder="175"></label>
+            <label>Carbohidratos (g)<input id="carbsInput" type="number" min="0" max="600" step="1"></label>
+            <label>Grasas (g)<input id="fatMacroInput" type="number" min="0" max="300" step="1"></label>
+            <label>Agua (L)<input id="waterInput" type="number" min="0" max="10" step="0.1" placeholder="3.0"></label>
+            <label>Ayuno (h)<input id="fastingInput" type="number" min="0" max="24" step="0.5" placeholder="14"></label>
+          </div>
+
+          <div class="habit-grid top-gap">
+            <label class="habit"><input id="creatineCheck" type="checkbox"><span class="habit-check">✓</span><span><strong>Creatina</strong><small>5 g</small></span></label>
+            <label class="habit"><input id="d3Check" type="checkbox"><span class="habit-check">✓</span><span><strong>D3 + K2</strong><small>diario</small></span></label>
+            <label class="habit"><input id="magnesiumCheck" type="checkbox"><span class="habit-check">✓</span><span><strong>Magnesio</strong><small>noche</small></span></label>
+          </div>
+
+          <label class="top-gap">Notas<textarea id="nutritionNotes" rows="2" placeholder="Hambre, comida fuera, sensaciones..."></textarea></label>
+          <div class="row wrap gap top-gap">
+            <button id="saveNutritionBtn" class="btn primary" type="button">Guardar día</button>
+            <span id="nutritionMsg" class="status"></span>
+          </div>
+        </div>
       </section>
 
+      <!-- RECOVERY -->
       <section id="recoveryPage" class="page">
-        <div class="card"><div class="card-title">Chequeo diario</div><div class="grid two"><label>Fecha<input id="recoveryDate" type="date"></label><label>Energía (1–10)<input id="energyInput" type="number" min="1" max="10"></label><label>Rodilla derecha (0–10)<input id="rightKneeInput" type="number" min="0" max="10" value="0"></label><label>Rodilla izquierda (0–10)<input id="leftKneeInput" type="number" min="0" max="10" value="0"></label><label>Recto femoral derecho (0–10)<input id="rightRFInput" type="number" min="0" max="10" value="0"></label><label>Recto femoral izquierdo (0–10)<input id="leftRFInput" type="number" min="0" max="10" value="0"></label><label>Tirantez RF derecho<select id="rightTightnessInput"><option value="ninguna">Ninguna</option><option value="ligera">Ligera</option><option value="media">Media</option><option value="alta">Alta</option></select></label><label>Sueño (h)<input id="sleepInput" type="number" min="0" max="16" step="0.5"></label></div><label class="top-gap">Notas<textarea id="recoveryNotes" rows="3"></textarea></label><div class="row wrap gap top-gap"><button id="saveRecoveryBtn" class="btn primary" type="button">Guardar recuperación</button><span id="recoveryMsg" class="status"></span></div></div>
-        <div class="card callout"><div class="card-title">Calentamiento recto femoral / rodilla</div><ol class="compact-list"><li>Bici suave 6 min.</li><li>Heel slides 2×12.</li><li>Flexión de rodilla tumbado 2×10.</li><li>Puente de glúteos 2×15.</li><li>TKE con banda 2×15.</li><li>Wall sit parcial 2×25–30 s.</li></ol><p class="muted">Si el dolor supera 3/10, reduce rango/carga. Si es punzante o hay pérdida de fuerza/inflamación, no fuerces.</p></div>
+        <div class="section-head">
+          <div><span class="eyebrow">READINESS</span><h2>Recuperación</h2></div>
+          <input id="recoveryDate" class="compact-date" type="date" aria-label="Fecha de recuperación">
+        </div>
+
+        <div id="readinessCard" class="readiness-card card readiness-neutral">
+          <div class="readiness-dot"></div>
+          <div>
+            <span class="eyebrow">ESTADO DE HOY</span>
+            <h3 id="readinessTitle">Sin registrar</h3>
+            <p id="readinessText" class="muted">Añade tus molestias para obtener una recomendación simple.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="grid two">
+            <label>Rodilla derecha (0–10)<input id="rightKneeInput" type="number" min="0" max="10" value="0"></label>
+            <label>Rodilla izquierda (0–10)<input id="leftKneeInput" type="number" min="0" max="10" value="0"></label>
+            <label>Recto femoral derecho (0–10)<input id="rightRFInput" type="number" min="0" max="10" value="0"></label>
+            <label>Recto femoral izquierdo (0–10)<input id="leftRFInput" type="number" min="0" max="10" value="0"></label>
+            <label>Tirantez RF derecho
+              <select id="rightTightnessInput">
+                <option value="ninguna">Ninguna</option>
+                <option value="ligera">Ligera</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </label>
+            <label>Energía (1–10)<input id="energyInput" type="number" min="1" max="10"></label>
+            <label>Sueño (h)<input id="sleepInput" type="number" min="0" max="16" step="0.5"></label>
+          </div>
+          <label class="top-gap">Notas<textarea id="recoveryNotes" rows="2" placeholder="Dolor, tirantez, inflamación, sensaciones..."></textarea></label>
+          <div class="row wrap gap top-gap">
+            <button id="saveRecoveryBtn" class="btn primary" type="button">Guardar recuperación</button>
+            <span id="recoveryMsg" class="status"></span>
+          </div>
+        </div>
+
+        <details class="card details-card" open>
+          <summary><span>Calentamiento recto femoral / rodilla</span><span class="summary-icon">+</span></summary>
+          <div class="details-body">
+            <ol class="compact-list">
+              <li>Bici suave · 6 min</li>
+              <li>Heel slides · 2×12</li>
+              <li>Flexión de rodilla tumbado · 2×10</li>
+              <li>Puente de glúteos · 2×15</li>
+              <li>TKE con banda · 2×15</li>
+              <li>Wall sit parcial · 2×25–30 s</li>
+            </ol>
+            <p class="muted">Si el dolor supera 3/10, reduce rango/carga. Si es punzante, aparece inflamación o pérdida de fuerza, no fuerces.</p>
+          </div>
+        </details>
       </section>
     </main>
-    <nav class="bottom-nav"><button class="nav-btn active" data-page="homePage" data-title="Inicio">Inicio</button><button class="nav-btn" data-page="trainingPage" data-title="Entrenamiento">Entreno</button><button class="nav-btn" data-page="progressPage" data-title="Progreso">Progreso</button><button class="nav-btn" data-page="dietPage" data-title="Dieta">Dieta</button><button class="nav-btn" data-page="recoveryPage" data-title="Recuperación">Recup.</button></nav>
+
+    <!-- REST TIMER -->
+    <div id="timerBar" class="timer-bar hidden" role="timer" aria-live="polite">
+      <div>
+        <span class="eyebrow">DESCANSO</span>
+        <strong id="timerValue">01:30</strong>
+      </div>
+      <div class="timer-actions">
+        <button id="timerMinusBtn" class="icon-btn small-icon" type="button" aria-label="Restar 15 segundos">−15</button>
+        <button id="timerSkipBtn" class="btn secondary small" type="button">Saltar</button>
+        <button id="timerPlusBtn" class="icon-btn small-icon" type="button" aria-label="Añadir 15 segundos">+15</button>
+      </div>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-btn active" data-page="homePage" data-title="Inicio" type="button">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Inicio</span>
+      </button>
+      <button class="nav-btn" data-page="trainingPage" data-title="Entreno" type="button">
+        <svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg><span>Entreno</span>
+      </button>
+      <button class="nav-btn" data-page="progressPage" data-title="Progreso" type="button">
+        <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg><span>Progreso</span>
+      </button>
+      <button class="nav-btn" data-page="dietPage" data-title="Dieta" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 21V9M8 5c0 2 1.8 4 4 4s4-2 4-4c-2 0-4 .7-4 3 0-2.3-2-3-4-3Z"/></svg><span>Dieta</span>
+      </button>
+      <button class="nav-btn" data-page="recoveryPage" data-title="Recuperación" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.4-7 10-7 10Z"/></svg><span>Recup.</span>
+      </button>
+    </nav>
   </section>
 </div>
+
 <script type="module" src="./app.js"></script>
 </body>
 </html>
