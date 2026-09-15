@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Seguimiento personal de entrenamiento, progreso, dieta y recuperación.">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>MyFit Tracker</title>
+</head>
+<body>
+<div id="app">
+  <section id="authView" class="auth-shell">
+    <div class="auth-card">
+      <div class="logo-mark">MF</div>
+      <h1>MyFit Tracker</h1>
+      <p class="muted">Entrenamiento, progreso, dieta y recuperación.</p>
+      <form id="authForm" class="stack">
+        <label>Email<input id="emailInput" type="email" autocomplete="email" required></label>
+        <label>Contraseña<input id="passwordInput" type="password" minlength="6" required></label>
+        <div class="row gap"><button class="btn primary" type="submit">Entrar</button><button id="signupBtn" class="btn secondary" type="button">Crear cuenta</button></div>
+        <p id="authMsg" class="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="mainView" class="hidden">
+    <header class="topbar"><div><div class="eyebrow">MYFIT TRACKER</div><h1 id="pageTitle">Inicio</h1></div><button id="logoutBtn" class="btn ghost small" type="button">Salir</button></header>
+    <main class="content">
+      <section id="homePage" class="page active">
+        <div class="hero card"><div><div class="eyebrow">OBJETIVO</div><h2>84 kg · Talla 42</h2><p class="muted">3 días gym + máximo 2 sesiones cortas en casa.</p></div><div class="hero-stat"><span class="muted">Peso actual</span><strong id="homeWeight">—</strong></div></div>
+        <div class="grid two"><div class="card"><div class="card-title">Entreno seleccionado</div><div id="todayWorkout" class="big-value">—</div><p id="todayWorkoutHint" class="muted">Semana 4</p></div><div class="card"><div class="card-title">Última cintura</div><div id="homeWaist" class="big-value">—</div><p class="muted">Registra una medición en Progreso.</p></div></div>
+        <div class="card"><div class="card-title">Semana base</div><div class="week-strip"><span>Lun · Pierna</span><span>Mar · Casa corta</span><span>Mié · Pecho</span><span>Jue · Casa corta</span><span>Vie · Espalda</span><span>Fin de semana · pasos + recuperación</span></div></div>
+      </section>
+
+      <section id="trainingPage" class="page">
+        <div class="card"><div class="grid two"><label>Semana<select id="weekSelect"></select></label><label>Sesión<select id="sessionSelect"><option value="leg">Gym 1 · Pierna + glúteo</option><option value="chest">Gym 2 · Pecho prioritario</option><option value="back">Gym 3 · Espalda + dorsal</option><option value="homeA">Casa A · 20–25 min</option><option value="homeB">Casa B · 15–20 min</option></select></label></div></div>
+        <div id="warmupCard" class="card callout hidden"></div>
+        <div id="exerciseList" class="stack"></div>
+        <div class="card"><label>Notas de la sesión<textarea id="workoutNotes" rows="3" placeholder="Sensaciones, molestias, energía..."></textarea></label><div class="row wrap gap top-gap"><button id="saveWorkoutBtn" class="btn primary" type="button">Guardar entrenamiento</button><span id="workoutMsg" class="status"></span></div></div>
+        <div class="card"><div class="card-title">Últimos entrenamientos</div><div id="recentWorkouts" class="list muted">Todavía no hay entrenamientos.</div></div>
+      </section>
+
+      <section id="progressPage" class="page">
+        <div class="card"><div class="card-title">Nueva medición</div><form id="measurementForm" class="stack"><div class="grid two"><label>Fecha<input id="measureDate" type="date" required></label><label>Peso (kg)<input id="weightInput" type="number" min="40" max="200" step="0.1" required></label><label>Grasa corporal (%)<input id="fatInput" type="number" min="1" max="70" step="0.1"></label><label>Grasa visceral<input id="visceralInput" type="number" min="0" max="100" step="0.1"></label><label>Masa muscular (kg)<input id="muscleInput" type="number" min="0" max="150" step="0.1"></label><label>Agua corporal (%)<input id="waterPctInput" type="number" min="0" max="100" step="0.1"></label><label>Cintura (cm)<input id="waistInput" type="number" min="40" max="200" step="0.1"></label><label>Cadera (cm)<input id="hipInput" type="number" min="40" max="200" step="0.1"></label><label>Muslo alto (cm)<input id="thighInput" type="number" min="20" max="120" step="0.1"></label></div><button class="btn primary" type="submit">Guardar medición</button><span id="measurementMsg" class="status"></span></form></div>
+        <div class="grid three"><div class="card metric"><span>Último peso</span><strong id="metricWeight">—</strong></div><div class="card metric"><span>Cintura</span><strong id="metricWaist">—</strong></div><div class="card metric"><span>Grasa</span><strong id="metricFat">—</strong></div></div>
+        <div class="card"><div class="card-title">Histórico</div><div id="measurementHistory" class="list muted">Todavía no hay mediciones.</div></div>
+      </section>
+
+      <section id="dietPage" class="page">
+        <div class="card"><div class="card-title">Registro diario</div><div class="grid two"><label>Fecha<input id="nutritionDate" type="date"></label><label>Calorías<input id="caloriesInput" type="number" min="0" max="6000" step="10" placeholder="1850"></label><label>Proteína (g)<input id="proteinInput" type="number" min="0" max="400" step="1" placeholder="175"></label><label>Carbohidratos (g)<input id="carbsInput" type="number" min="0" max="600" step="1"></label><label>Grasas (g)<input id="fatMacroInput" type="number" min="0" max="300" step="1"></label><label>Agua (L)<input id="waterInput" type="number" min="0" max="10" step="0.1" placeholder="3.0"></label><label>Ayuno (h)<input id="fastingInput" type="number" min="0" max="24" step="0.5" placeholder="14"></label></div><div class="checks top-gap"><label><input id="creatineCheck" type="checkbox"> Creatina 5 g</label><label><input id="d3Check" type="checkbox"> D3 + K2</label><label><input id="magnesiumCheck" type="checkbox"> Magnesio</label></div><label class="top-gap">Notas<textarea id="nutritionNotes" rows="3"></textarea></label><div class="row wrap gap top-gap"><button id="saveNutritionBtn" class="btn primary" type="button">Guardar día</button><span id="nutritionMsg" class="status"></span></div></div>
+        <div class="card"><div class="card-title">Objetivo base</div><div class="target-grid"><div><strong>170–180 g</strong><span>proteína</span></div><div><strong>1.750–1.950</strong><span>kcal orientativas</span></div><div><strong>2,5–3 L</strong><span>agua</span></div><div><strong>14/10</strong><span>ayuno opcional</span></div></div></div>
+      </section>
+
+      <section id="recoveryPage" class="page">
+        <div class="card"><div class="card-title">Chequeo diario</div><div class="grid two"><label>Fecha<input id="recoveryDate" type="date"></label><label>Energía (1–10)<input id="energyInput" type="number" min="1" max="10"></label><label>Rodilla derecha (0–10)<input id="rightKneeInput" type="number" min="0" max="10" value="0"></label><label>Rodilla izquierda (0–10)<input id="leftKneeInput" type="number" min="0" max="10" value="0"></label><label>Recto femoral derecho (0–10)<input id="rightRFInput" type="number" min="0" max="10" value="0"></label><label>Recto femoral izquierdo (0–10)<input id="leftRFInput" type="number" min="0" max="10" value="0"></label><label>Tirantez RF derecho<select id="rightTightnessInput"><option value="ninguna">Ninguna</option><option value="ligera">Ligera</option><option value="media">Media</option><option value="alta">Alta</option></select></label><label>Sueño (h)<input id="sleepInput" type="number" min="0" max="16" step="0.5"></label></div><label class="top-gap">Notas<textarea id="recoveryNotes" rows="3"></textarea></label><div class="row wrap gap top-gap"><button id="saveRecoveryBtn" class="btn primary" type="button">Guardar recuperación</button><span id="recoveryMsg" class="status"></span></div></div>
+        <div class="card callout"><div class="card-title">Calentamiento recto femoral / rodilla</div><ol class="compact-list"><li>Bici suave 6 min.</li><li>Heel slides 2×12.</li><li>Flexión de rodilla tumbado 2×10.</li><li>Puente de glúteos 2×15.</li><li>TKE con banda 2×15.</li><li>Wall sit parcial 2×25–30 s.</li></ol><p class="muted">Si el dolor supera 3/10, reduce rango/carga. Si es punzante o hay pérdida de fuerza/inflamación, no fuerces.</p></div>
+      </section>
+    </main>
+    <nav class="bottom-nav"><button class="nav-btn active" data-page="homePage" data-title="Inicio">Inicio</button><button class="nav-btn" data-page="trainingPage" data-title="Entrenamiento">Entreno</button><button class="nav-btn" data-page="progressPage" data-title="Progreso">Progreso</button><button class="nav-btn" data-page="dietPage" data-title="Dieta">Dieta</button><button class="nav-btn" data-page="recoveryPage" data-title="Recuperación">Recup.</button></nav>
+  </section>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
