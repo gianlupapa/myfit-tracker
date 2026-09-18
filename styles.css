@@ -150,6 +150,7 @@ details[open] .summary-icon{transform:rotate(45deg)}
 .exercise-top{padding:16px 16px 13px;border-bottom:1px solid var(--line)}
 .exercise-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .exercise-name{font-size:17px;font-weight:900;letter-spacing:-.025em}
+.exercise-note{font-size:11px;line-height:1.45;color:var(--muted);margin-top:5px;max-width:520px}
 .exercise-target{color:var(--muted);font-size:11px;text-align:right;line-height:1.55}
 .last-block{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:12px;background:#0c1219;border:1px solid #202b37;border-radius:14px;padding:11px}
 .last-label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px}

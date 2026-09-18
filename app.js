@@ -9,6 +9,88 @@ let timerInterval = null;
 let timerSeconds = 0;
 let timerDefault = 90;
 let latestMeasurements = [];
+let draftSaveTimer = null;
+
+function currentWorkoutDraftKey(){
+  if(!currentUser) return null;
+  const week = $("weekSelect")?.value || "4";
+  const session = $("sessionSelect")?.value || "chest";
+  return `myfit_workout_draft_v32_${currentUser.id}_${week}_${session}`;
+}
+
+function collectWorkoutDraft(){
+  const key = currentWorkoutDraftKey();
+  if(!key) return null;
+  const sets = [...document.querySelectorAll("#exerciseList .set-row")].map(row => ({
+    exercise: row.dataset.exercise,
+    set: Number(row.dataset.set),
+    kg: row.querySelector(".kg")?.value ?? "",
+    reps: row.querySelector(".reps")?.value ?? "",
+    rpe: row.querySelector(".rpe")?.value ?? "",
+    done: row.classList.contains("done")
+  }));
+  return {
+    version: 1,
+    saved_at: new Date().toISOString(),
+    week: Number($("weekSelect")?.value || 4),
+    session: $("sessionSelect")?.value || "chest",
+    notes: $("workoutNotes")?.value || "",
+    sets
+  };
+}
+
+function saveWorkoutDraft({showMessage=false} = {}){
+  const key = currentWorkoutDraftKey();
+  if(!key) return;
+  try{
+    const draft = collectWorkoutDraft();
+    localStorage.setItem(key, JSON.stringify(draft));
+    if(showMessage) status("workoutMsg","Borrador guardado automáticamente ✓","ok");
+  }catch(_e){
+    // El entrenamiento sigue funcionando aunque el almacenamiento local falle.
+  }
+}
+
+function scheduleWorkoutDraftSave(){
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(()=>saveWorkoutDraft(),180);
+}
+
+function clearCurrentWorkoutDraft(){
+  const key = currentWorkoutDraftKey();
+  if(!key) return;
+  try{ localStorage.removeItem(key); }catch(_e){}
+}
+
+function restoreWorkoutDraft(){
+  const key = currentWorkoutDraftKey();
+  if(!key) return false;
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return false;
+    const draft = JSON.parse(raw);
+    if(!draft?.sets?.length) return false;
+
+    $("workoutNotes").value = draft.notes || "";
+    const rows = [...document.querySelectorAll("#exerciseList .set-row")];
+    for(const row of rows){
+      const saved = draft.sets.find(s =>
+        s.exercise === row.dataset.exercise &&
+        Number(s.set) === Number(row.dataset.set)
+      );
+      if(!saved) continue;
+      row.querySelector(".kg").value = saved.kg ?? "";
+      row.querySelector(".reps").value = saved.reps ?? "";
+      row.querySelector(".rpe").value = saved.rpe ?? "";
+      row.classList.toggle("done", !!saved.done);
+      row.querySelector(".done-btn")?.classList.toggle("active", !!saved.done);
+    }
+    status("workoutMsg","Borrador recuperado automáticamente","ok");
+    return true;
+  }catch(_e){
+    return false;
+  }
+}
 
 const today = () => new Date().toISOString().slice(0,10);
 const clamp = (n,min,max) => Math.min(max,Math.max(min,n));
@@ -23,147 +105,490 @@ function status(id,msg,type=""){
   el.style.color=type==="error"?"#ff6b75":type==="ok"?"#55dc88":"";
 }
 
-const plans = {
-  leg:{
-    title:"Pierna + glúteo + rodilla + core",
-    subtitle:"Fuerza controlada · sin explosividad",
-    warmup:"Bici suave 6 min · heel slides 2×12 · flexión de rodilla tumbado 2×10 · puente glúteo 2×15 · TKE 2×15 · wall sit parcial 2×25–30 s.",
-    exercises:[
-      ["Prensa de piernas",4,"10–12",90],
-      ["Hip thrust",4,"10–12",90],
-      ["Peso muerto rumano",3,"8–10",90],
-      ["Step-up bajo",3,"10/lado",75],
-      ["Extensión de cuádriceps ligera",3,"12–15",60],
-      ["Abducción de cadera",3,"15–20",60],
-      ["Gemelos",3,"15–20",60],
-      ["Pallof press",3,"12/lado",45]
-    ]
+
+const sharedHomeA = {
+  title:"Casa corto A",
+  subtitle:"Rodilla/vastos + core + cardio bajo impacto",
+  warmup:"Calentamiento: movilidad cadera/tobillo + marcha · 4 min · sin impacto.",
+  weekNote:"",
+  exercises:[
+    ["Circuito x 3",3,"Wall sit parcial 30 s + glute bridge 15 + dead bug 8/lado + tibialis raise 15",60,"12-15 min · rodilla/vastos + core."],
+    ["Cardio bajo impacto",1,"Caminata rápida o bici suave · 10-15 min",60,"RPE 5-6."],
+    ["Final",1,"Respiración + estiramiento suave flexores/cadera · 3 min",30,"Descargar."]
+  ]
+};
+
+const sharedHomeB = {
+  title:"Casa corto B",
+  subtitle:"Actividad corta + core + gasto sin fatigar pierna",
+  warmup:"Calentamiento: movilidad torácica + hombros + cadera · 4 min · preparar articulaciones.",
+  weekNote:"",
+  exercises:[
+    ["Circuito x 3",3,"Remo mancuerna 12/lado + press suelo 12 + elevaciones laterales 15 + plancha 35 s",60,"14-16 min · gasto corto sin machacar piernas."],
+    ["Finisher",1,"Step touch o caminata rápida · 5-8 min",45,"Sin saltos."],
+    ["Final",1,"Estiramientos suaves · 2 min",30,"Bajar pulsaciones."]
+  ]
+};
+
+const weeklyPlans = {
+  4:{
+    note:"Semana de ajuste: vienes con buenos resultados, pero ahora priorizamos pecho, dorsales, hombro/trapecio, glúteo y rodilla. No subas todo a la vez.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 4 · ajuste",
+      warmup:"Bicicleta suave + movilidad tobillo/cadera · 8-10 min. Calentar rodilla sin impacto; respiración nasal si es posible.",
+      exercises:[
+        ["Terminal Knee Extension en polea/banda",3,"15/lado",45,"Activación de vasto medial. Pausa 1 s en extensión."],
+        ["Prensa de piernas rango seguro",4,"12",90,"Pies anchura cadera. No bloquear rodilla. Controlar bajada."],
+        ["Hip thrust",4,"10-12",90,"Pausa 2 s arriba. Costillas abajo, pelvis estable."],
+        ["Peso muerto rumano",3,"10",90,"3 s bajada. Sentir isquios/glúteo, no lumbar."],
+        ["Step-up bajo",3,"10/lado",75,"Subir sin impulso. Rodilla alineada con segundo dedo."],
+        ["Extensión de cuádriceps ligera",3,"15",60,"Control, sin fallo, sin bloqueo agresivo."],
+        ["Abducción de cadera",3,"15-20",60,"Glúteo medio. No balancear tronco."],
+        ["Core: plancha + Pallof + dead bug",3,"bloques",45,"Antirotación y control lumbopélvico."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 4 · masa + anchura + pecho bajo/central",
+      warmup:"Mantén técnica limpia y 1-2 repeticiones en reserva en los presses.",
+      exercises:[
+        ["Press banca plano",4,"8-10",90,"Masa general de pecho."],
+        ["Press inclinado con mancuernas",3,"8-10",90,"Pecho superior y forma."],
+        ["Press declinado máquina/barra/mancuernas",3,"10-12",75,"Pecho bajo."],
+        ["Aperturas en polea o peck deck",3,"12-15",60,"Anchura, estiramiento controlado."],
+        ["Cruce de poleas arriba-abajo",3,"12-15",60,"Pecho bajo y zona central/esternal."],
+        ["Elevaciones laterales",3,"15",60,"Deltoide lateral sin robar al pecho."],
+        ["Tríceps cuerda",3,"10-12",60,"Final sin agotar hombro."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 4 · anchura dorsal + trapecio",
+      warmup:"Hombros abajo antes de tirar; prioriza conexión dorsal y técnica.",
+      exercises:[
+        ["Jalón al pecho agarre neutro",4,"8-10",90,"Anchura dorsal. Hombros abajo antes de tirar."],
+        ["Jalón unilateral en polea alta",4,"10-12/lado",75,"Codo hacia la cadera para dorsal bajo."],
+        ["Pullover polea / brazos rectos",3,"12-15",60,"Conectar dorsal sin bíceps."],
+        ["Remo pecho apoyado",3,"10-12",75,"Espalda media sin cargar lumbar."],
+        ["Face pull",3,"15",60,"Trapecio medio + deltoide posterior."],
+        ["Encogimientos o farmer carry",3,"12 / 30 m",75,"Trapecio superior."],
+        ["Curl bíceps",3,"10-12",60,"Control."]
+      ]
+    }
   },
-  back:{
-    title:"Espalda + dorsal + trapecio + bíceps",
-    subtitle:"Anchura dorsal + trapecio + deltoide posterior",
-    warmup:"5–7 min suaves · movilidad torácica · 2 series ligeras de jalón y remo.",
-    exercises:[
-      ["Jalón al pecho agarre neutro",4,"8–10",90],
-      ["Jalón unilateral en polea alta",4,"10–12/lado",75],
-      ["Pullover en polea / brazos rectos",3,"12–15",60],
-      ["Remo pecho apoyado",3,"10–12",75],
-      ["Face pull",3,"15",60],
-      ["Encogimientos / farmer carry",3,"10–12 / 30 m",75],
-      ["Curl bíceps",3,"10–12",60]
-    ]
+  5:{
+    note:"Semana de progresión controlada: aumenta una variable por sesión (reps, carga pequeña o una serie en un accesorio), no todas.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 5 · progresión controlada",
+      warmup:"Bicicleta suave + movilidad · 10 min. Si la rodilla molesta, alarga 3-4 min la bici.",
+      exercises:[
+        ["Wall sit parcial",3,"35-45 s",60,"Ángulo 45-60 grados. Sensación de vastos, no dolor."],
+        ["Prensa de piernas",4,"10-12",90,"Aumenta carga solo si semana 4 fue limpia."],
+        ["Hip thrust",4,"10",90,"Algo más pesado, misma técnica."],
+        ["Peso muerto rumano",4,"8-10",90,"Prioridad cadena posterior."],
+        ["Step-up bajo",3,"10-12/lado",75,"Sin empujarte con la pierna de atrás."],
+        ["Extensión cuádriceps unilateral ligera",3,"12/lado",60,"Muy controlado. Rango sin dolor."],
+        ["Gemelo + tibialis raise",3,"15-20",45,"Mejor soporte para rodilla y tobillo."],
+        ["Core: Pallof + plancha lateral",3,"12/lado",45,"Estabilidad pelvis-rodilla."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 5 · progresión controlada",
+      warmup:"Aumenta solo una variable si la semana 4 fue sólida.",
+      exercises:[
+        ["Press banca plano",4,"8-10",90,"Intenta +1 rep o +2,5 kg si fue fácil."],
+        ["Press inclinado mancuernas",3,"8-10",90,"Control escapular."],
+        ["Press declinado",3,"10-12",75,"Pecho bajo."],
+        ["Aperturas polea/peck deck",3,"12-15",60,"Bajada lenta, pecho abierto."],
+        ["Cruce poleas arriba-abajo",3,"12-15",60,"Aducción fuerte, sin balanceo."],
+        ["Elevaciones laterales",3,"15",60,"Anchura hombro."],
+        ["Tríceps cuerda",3,"10-12",60,"Sin fallo."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 5 · progresión controlada",
+      warmup:"Misma estructura de semana 4; progresa solo si la técnica se mantiene.",
+      exercises:[
+        ["Jalón al pecho agarre neutro",4,"8-10",90,"Anchura dorsal. Hombros abajo antes de tirar."],
+        ["Jalón unilateral en polea alta",4,"10-12/lado",75,"Codo hacia la cadera para dorsal bajo."],
+        ["Pullover polea / brazos rectos",3,"12-15",60,"Conectar dorsal sin bíceps."],
+        ["Remo pecho apoyado",3,"10-12",75,"Espalda media sin cargar lumbar."],
+        ["Face pull",3,"15",60,"Trapecio medio + deltoide posterior."],
+        ["Encogimientos o farmer carry",3,"12 / 30 m",75,"Trapecio superior."],
+        ["Curl bíceps",3,"10-12",60,"Control."]
+      ]
+    }
   },
-  homeA:{
-    title:"Casa A · Cardio + core",
-    subtitle:"20–25 min · RPE 6–7",
-    warmup:"Sesión corta. Sin saltos ni HIIT agresivo. Si haces spinning: sentado, resistencia moderada y sin sprints máximos.",
-    exercises:[
-      ["Marcha rápida / bici / spinning suave",1,"10 min",30],
-      ["Puente de glúteos",3,"15",45],
-      ["Sentadilla a banco",3,"12",60],
-      ["Plancha frontal",3,"30–40 s",45],
-      ["Dead bug",3,"8/lado",45]
-    ]
+  6:{
+    note:"Semana de progresión controlada: aumenta una variable por sesión (reps, carga pequeña o una serie en un accesorio), no todas.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 6 · glúteo + control excéntrico",
+      warmup:"Bicicleta + movilidad + TKE · 12 min. Calentamiento obligatorio.",
+      exercises:[
+        ["Prensa pies medios",4,"10",90,"Rango un poco mayor solo si no duele."],
+        ["Hip thrust",5,"8-10",90,"Prioridad glúteo firme."],
+        ["Sentadilla goblet a banco",3,"10",75,"Bajada 3 s. Tocar banco, no descansar."],
+        ["Peso muerto rumano",4,"8",90,"Control lumbar y cadera."],
+        ["Step-down bajo",3,"8/lado",75,"Trabajo excéntrico de vastos. Sin valgo."],
+        ["Abducción de cadera",4,"15",60,"Quemazón de glúteo medio, no balanceo."],
+        ["Core: dead bug + plancha",3,"bloques",45,"No arquear lumbar."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 6 · fuerza + grosor",
+      warmup:"Presses fuertes pero controlados. Sin fallo.",
+      exercises:[
+        ["Press banca plano",4,"6-8",105,"Fuerza y grosor."],
+        ["Press inclinado mancuernas",3,"8-10",90,"Pecho superior."],
+        ["Fondos asistidos torso inclinado",3,"8-10",90,"Pecho bajo. Si molesta, press declinado."],
+        ["Press convergente en máquina",3,"10-12",75,"Sensación central por aducción."],
+        ["Cruce de poleas medio",3,"12-15",60,"Cierre controlado."],
+        ["Aperturas inclinadas ligeras",2,"15",60,"Estiramiento sin dolor."],
+        ["Elevaciones laterales",3,"12-15",60,"Deltoide lateral."],
+        ["Extensión tríceps sobre cabeza",2,"12",60,"Cabeza larga del tríceps."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 6 · dorsal ancho + densidad",
+      warmup:"Tracciones fuertes con control; codo hacia el bolsillo en el unilateral.",
+      exercises:[
+        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
+        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
+        ["Pullover polea",4,"12",60,"Tensión continua."],
+        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
+        ["Encogimientos",4,"10-12",75,"Trapecio."],
+        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+      ]
+    }
   },
-  homeB:{
-    title:"Casa B · Recuperación activa",
-    subtitle:"15–20 min · movilidad + rodilla",
-    warmup:"Objetivo: recuperar y ganar tolerancia, no fatigarte.",
-    exercises:[
-      ["Heel slides",2,"12/lado",30],
-      ["Flexión de rodilla tumbado",2,"10/lado",30],
-      ["TKE con banda",3,"15/lado",30],
-      ["Wall sit parcial",3,"30–40 s",45],
-      ["Movilidad de cadera y tobillo",1,"6 min",30]
-    ]
+  7:{
+    note:"Semana de progresión controlada: aumenta una variable por sesión (reps, carga pequeña o una serie en un accesorio), no todas.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 7 · fuerza controlada",
+      warmup:"Bicicleta + movilidad · 10-12 min. La rodilla debe entrar caliente al trabajo.",
+      exercises:[
+        ["Wall sit parcial",3,"45 s",60,"Isométrico para vastos."],
+        ["Prensa de piernas",5,"8-10",90,"Sube carga moderada. Técnica limpia."],
+        ["Hip thrust",5,"8-10",90,"Pausa arriba."],
+        ["Peso muerto rumano",4,"8",90,"Isquios/glúteo."],
+        ["Step-down técnico",3,"8/lado",75,"Bajada lenta, rodilla estable."],
+        ["Extensión de cuádriceps ligera",3,"15",60,"2-3 series. Solo bombeo, no fallo."],
+        ["Core: Pallof + plancha lateral",3,"bloques",45,"Antirotación para golf/pádel."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 7 · consolidación",
+      warmup:"Mantener técnica. Sin fallo.",
+      exercises:[
+        ["Press banca plano",4,"6-8",105,"Mantener técnica, no fallo."],
+        ["Press inclinado mancuernas",3,"8-10",90,"Forma y grosor."],
+        ["Fondos asistidos torso inclinado",3,"8-10",90,"Pecho bajo."],
+        ["Press convergente",3,"10-12",75,"Aducción y densidad."],
+        ["Cruce poleas medio",3,"12-15",60,"Parte central/esternal visual."],
+        ["Aperturas inclinadas",2,"15",60,"Control."],
+        ["Elevaciones laterales",3,"12-15",60,"Anchura."],
+        ["Tríceps sobre cabeza",2,"12",60,"Sin sobrecargar codo."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 7 · dorsal ancho + densidad",
+      warmup:"Técnica limpia; no balancees en tracciones ni encogimientos.",
+      exercises:[
+        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
+        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
+        ["Pullover polea",4,"12",60,"Tensión continua."],
+        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
+        ["Encogimientos",4,"10-12",75,"Trapecio."],
+        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+      ]
+    }
+  },
+  8:{
+    note:"Semana de volumen estético: pecho y dorsal tienen más trabajo; controla descanso, sueño y dieta.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 8 · consolidación",
+      warmup:"Bicicleta + movilidad + TKE · 12 min. Semana de consolidación.",
+      exercises:[
+        ["Prensa unilateral ligera",3,"10/lado",75,"Compara sensaciones izquierda/derecha."],
+        ["Prensa bilateral",3,"10",90,"Carga media."],
+        ["Hip thrust",4,"10",90,"Glúteo dominante."],
+        ["RDL con mancuernas/barra",4,"8-10",90,"Tempo 3-1-1."],
+        ["Step-up bajo",3,"10/lado",75,"Solidez, no velocidad."],
+        ["Abducción + gemelo",3,"15-20",45,"Circuito controlado."],
+        ["Core: dead bug + Pallof",3,"bloques",45,"Control pelvis."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 8 · volumen estético",
+      warmup:"Más volumen de pecho. Controla descanso y técnica.",
+      exercises:[
+        ["Press inclinado mancuernas",4,"8-10",90,"Prioridad forma/pecho alto."],
+        ["Press banca plano",4,"8",90,"Masa central."],
+        ["Press declinado o fondos asistidos",3,"8-10",90,"Pecho bajo."],
+        ["Aperturas en polea desde abajo",3,"12-15",60,"Estiramiento y control."],
+        ["Cruce poleas arriba-abajo",3,"12-15",60,"Pecho bajo/central."],
+        ["Squeeze press mancuernas",2,"12-15",60,"Sensación central."],
+        ["Elevaciones laterales",4,"12-15",60,"Deltoide lateral."],
+        ["Tríceps cuerda",3,"12",60,"2-3 series. Mantenimiento."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 8 · volumen estético",
+      warmup:"Dorsal ancho + densidad. Mantén tensión continua.",
+      exercises:[
+        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
+        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
+        ["Pullover polea",4,"12",60,"Tensión continua."],
+        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
+        ["Encogimientos",4,"10-12",75,"Trapecio."],
+        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+      ]
+    }
+  },
+  9:{
+    note:"Semana de volumen estético: pecho y dorsal tienen más trabajo; controla descanso, sueño y dieta.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 9 · volumen + fuerza glúteo",
+      warmup:"Bicicleta + movilidad · 12 min. Si hay dolor de rodilla, reduce rango.",
+      exercises:[
+        ["Spanish squat o wall sit",3,"45 s",60,"Isométrico de vastos."],
+        ["Prensa de piernas",5,"8",90,"Carga moderada-alta sin fallo."],
+        ["Hip thrust",5,"8",90,"Prioridad fuerza glúteo."],
+        ["Sentadilla goblet a banco",4,"8-10",75,"Rango seguro."],
+        ["RDL",4,"8",90,"Sin tirones."],
+        ["Step-down técnico",3,"8/lado",75,"Excéntrico lento."],
+        ["Core: plancha + side plank",3,"bloques",45,"Estabilidad global."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 9 · volumen estético",
+      warmup:"Progresión leve solo si la técnica es sólida.",
+      exercises:[
+        ["Press inclinado mancuernas",4,"8-10",90,"Intenta progresar leve."],
+        ["Press banca plano",4,"8",90,"Control y densidad."],
+        ["Press declinado/fondos",3,"8-10",90,"Pecho bajo."],
+        ["Aperturas polea desde abajo",3,"12-15",60,"Rango amplio."],
+        ["Cruce poleas arriba-abajo",3,"12-15",60,"Cierre fuerte."],
+        ["Squeeze press",2,"12-15",60,"Bombeo central."],
+        ["Elevaciones laterales",4,"12-15",60,"Anchura hombro."],
+        ["Tríceps cuerda",3,"12",60,"2-3 series. Sin fallo."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 9 · volumen estético",
+      warmup:"Mantén control de escápulas y codo hacia el bolsillo.",
+      exercises:[
+        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
+        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
+        ["Pullover polea",4,"12",60,"Tensión continua."],
+        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
+        ["Encogimientos",4,"10-12",75,"Trapecio."],
+        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+      ]
+    }
+  },
+  10:{
+    note:"Semana de intensificación: cargas más serias en press y tracciones, pierna sin fallo y con rodilla controlada.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 10 · intensificación controlada",
+      warmup:"Bicicleta + movilidad · 10-12 min. Mantener bajo impacto.",
+      exercises:[
+        ["TKE + wall sit",3,"15 + 35 s",60,"Activación vastos."],
+        ["Prensa de piernas",4,"8-10",90,"No buscar récord."],
+        ["Hip thrust",4,"8-10",90,"Firmeza glúteo."],
+        ["Peso muerto rumano",4,"8",90,"Controlado."],
+        ["Split squat asistido corto",3,"8/lado",75,"Paso corto, tronco estable."],
+        ["Abducción de cadera",4,"15",60,"Glúteo medio."],
+        ["Core: Pallof press",3,"12/lado",45,"Antirotación."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 10 · intensificación",
+      warmup:"Cargas más serias en press, sin perder técnica.",
+      exercises:[
+        ["Press banca plano",5,"5-6",120,"Intensificación controlada."],
+        ["Press inclinado mancuernas",3,"8-10",90,"Volumen."],
+        ["Press declinado máquina",3,"8-10",90,"Pecho bajo."],
+        ["Fondos asistidos o máquina convergente",3,"8-10",90,"Densidad."],
+        ["Cruce de poleas",3,"12-15",60,"Bombeo central."],
+        ["Aperturas máquina",2,"15",60,"Estiramiento."],
+        ["Elevaciones laterales",3,"15",60,"Deltoide lateral."],
+        ["Tríceps polea",2,"12",60,"Final."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 10 · calidad de tracción",
+      warmup:"Tracciones controladas; no busques récords.",
+      exercises:[
+        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
+        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
+        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
+        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
+        ["Face pull",3,"15",60,"Postura."],
+        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
+        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+      ]
+    }
+  },
+  11:{
+    note:"Semana de intensificación: cargas más serias en press y tracciones, pierna sin fallo y con rodilla controlada.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 11 · intensificación controlada",
+      warmup:"Bicicleta + movilidad + activación · 12 min. Preparar rodilla y cadera.",
+      exercises:[
+        ["Prensa",5,"8",90,"Fuerte pero sin fallo."],
+        ["Hip thrust",5,"8",90,"Pausa 2 s arriba."],
+        ["RDL",4,"8",90,"Cadena posterior."],
+        ["Step-up bajo con carga",3,"8/lado",75,"Solo si técnica perfecta."],
+        ["Extensión cuádriceps ligera",3,"12-15",60,"Bombeo controlado."],
+        ["Gemelo + tibial",3,"15-20",45,"Soporte de rodilla."],
+        ["Core: plancha + dead bug",3,"bloques",45,"No fatigar lumbar."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 11 · intensificación",
+      warmup:"Misma estructura de semana 10; ligera progresión si procede.",
+      exercises:[
+        ["Press banca plano",5,"5-6",120,"Misma estructura, ligera progresión si procede."],
+        ["Press inclinado mancuernas",3,"8-10",90,"Sólido."],
+        ["Press declinado máquina",3,"8-10",90,"Pecho bajo."],
+        ["Fondos asistidos/máquina convergente",3,"8-10",90,"Densidad."],
+        ["Cruce de poleas",3,"12-15",60,"Última serie: descendente suave opcional."],
+        ["Aperturas máquina",2,"15",60,"No dolor hombro."],
+        ["Elevaciones laterales",3,"15",60,"Anchura."],
+        ["Tríceps polea",2,"12",60,"Sin fallo."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 11 · calidad de tracción",
+      warmup:"Control técnico y buena postura.",
+      exercises:[
+        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
+        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
+        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
+        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
+        ["Face pull",3,"15",60,"Postura."],
+        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
+        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+      ]
+    }
+  },
+  12:{
+    note:"Semana de descarga y evaluación: bajar volumen, medir cintura, fotos y sensaciones.",
+    leg:{
+      title:"Pierna + glúteo + rodilla/vastos + core",
+      subtitle:"Semana 12 · descarga/evaluación",
+      warmup:"Bicicleta + movilidad · 10 min. Semana de descarga/evaluación.",
+      exercises:[
+        ["Prensa ligera-media",3,"10",90,"Sin dolor, sensación fácil."],
+        ["Hip thrust",3,"10",75,"Control."],
+        ["RDL",3,"10",75,"Técnico."],
+        ["Step-up bajo",2,"10/lado",60,"Simetría."],
+        ["Wall sit parcial",2,"30 s",60,"Tolerancia rodilla."],
+        ["Core suave",3,"bloques",45,"2-3 bloques. Descargar, medir, evaluar."]
+      ]
+    },
+    chest:{
+      title:"Pecho prioritario + deltoide lateral + tríceps",
+      subtitle:"Semana 12 · descarga técnica",
+      warmup:"Baja volumen, mantén control y no fuerces.",
+      exercises:[
+        ["Press banca plano",3,"8",90,"Descarga técnica."],
+        ["Press inclinado mancuernas",3,"10",75,"Control."],
+        ["Press declinado/fondos asistidos",2,"10",75,"Pecho bajo sin forzar."],
+        ["Cruce de poleas",2,"15",60,"Bombeo."],
+        ["Aperturas máquina",2,"15",60,"Estiramiento suave."],
+        ["Elevaciones laterales",3,"15",60,"Mantener hombro."],
+        ["Tríceps cuerda",2,"12",60,"Final suave."]
+      ]
+    },
+    back:{
+      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
+      subtitle:"Semana 12 · descarga/evaluación",
+      warmup:"Calidad técnica. No buscar marcas.",
+      exercises:[
+        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
+        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
+        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
+        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
+        ["Face pull",3,"15",60,"Postura."],
+        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
+        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+      ]
+    }
   }
 };
 
-function chestPlan(week){
-  if(week<=5) return {
-    title:"Pecho prioritario",
-    subtitle:"Base · masa + parte baja + central",
-    warmup:"5–7 min · rotación externa 2×15 · face pull ligero 2×15 · 2 series de aproximación del primer press. Mantén 1–2 reps en recámara.",
-    exercises:[
-      ["Press banca plano",4,"8–10",90],
-      ["Press inclinado mancuernas",3,"8–10",90],
-      ["Press declinado máquina / mancuernas",3,"10–12",75],
-      ["Aperturas en polea / peck deck",3,"12–15",60],
-      ["Cruce poleas arriba→abajo",3,"12–15",60],
-      ["Elevaciones laterales",3,"15",60],
-      ["Tríceps cuerda",3,"10–12",60]
-    ]
-  };
-  if(week<=7) return {
-    title:"Pecho prioritario",
-    subtitle:"Volumen · parte baja + central",
-    warmup:"Movilidad de hombro/escápula + 2 series de aproximación. Deja 1–2 reps en reserva.",
-    exercises:[
-      ["Press banca plano",4,"6–8",105],
-      ["Press inclinado mancuernas",3,"8–10",90],
-      ["Fondos asistidos torso inclinado",3,"8–10",90],
-      ["Press convergente máquina",3,"10–12",75],
-      ["Cruce poleas medio",3,"12–15",60],
-      ["Aperturas inclinadas ligeras",2,"15",60],
-      ["Elevaciones laterales",3,"12–15",60],
-      ["Extensión tríceps sobre cabeza",2,"12",60]
-    ]
-  };
-  if(week<=9) return {
-    title:"Pecho prioritario",
-    subtitle:"Anchura + densidad",
-    warmup:"5–7 min + movilidad hombro + 2 series progresivas del primer press.",
-    exercises:[
-      ["Press inclinado mancuernas",4,"8–10",90],
-      ["Press banca plano",4,"8",90],
-      ["Press declinado / fondos asistidos",3,"8–10",90],
-      ["Aperturas en polea desde abajo",3,"12–15",60],
-      ["Cruce poleas arriba→abajo",3,"12–15",60],
-      ["Squeeze press mancuernas",2,"12–15",60],
-      ["Elevaciones laterales",4,"12–15",60],
-      ["Tríceps cuerda",2,"12",60]
-    ]
-  };
-  if(week<=11) return {
-    title:"Pecho prioritario",
-    subtitle:"Intensificación controlada",
-    warmup:"Calentamiento completo de hombro + varias series de aproximación. Nada de fallo en presses.",
-    exercises:[
-      ["Press banca plano",5,"5–6",120],
-      ["Press inclinado mancuernas",3,"8–10",90],
-      ["Press declinado máquina",3,"8–10",90],
-      ["Fondos asistidos / press convergente",3,"8–10",90],
-      ["Cruce de poleas",3,"12–15",60],
-      ["Aperturas máquina",2,"15",60],
-      ["Elevaciones laterales",3,"15",60],
-      ["Tríceps polea",2,"12",60]
-    ]
-  };
-  return {
-    title:"Pecho prioritario",
-    subtitle:"Descarga · técnica perfecta",
-    warmup:"Semana 12: recorrido limpio, control y sin buscar récords.",
-    exercises:[
-      ["Press banca plano",3,"8",90],
-      ["Press inclinado mancuernas",3,"10",75],
-      ["Press declinado / fondos asistidos",2,"10",75],
-      ["Cruce de poleas",2,"15",60],
-      ["Aperturas máquina",2,"15",60],
-      ["Elevaciones laterales",3,"15",60],
-      ["Tríceps cuerda",2,"12",60]
-    ]
-  };
-}
-
 function planFor(session,week){
-  if(session==="chest") return chestPlan(week);
-  const p=structuredClone(plans[session]);
-  if(week===12 && (session==="leg"||session==="back")){
-    p.subtitle+=" · descarga";
-    p.exercises=p.exercises.map(([n,s,r,rest])=>[n,Math.max(2,Math.min(3,s)),r,rest]);
+  const w = weeklyPlans[week] || weeklyPlans[4];
+  if(session==="homeA") {
+    const p=structuredClone(sharedHomeA); p.weekNote=w.note; return p;
   }
+  if(session==="homeB") {
+    const p=structuredClone(sharedHomeB); p.weekNote=w.note; return p;
+  }
+  const p=structuredClone(w[session]);
+  p.weekNote=w.note;
   return p;
 }
+
+// Agrupa variantes del mismo movimiento para que el historial no se fragmente
+// al cambiar ligeramente el nombre entre semanas.
+const exerciseAliasGroups = [
+  ["Press inclinado con mancuernas","Press inclinado mancuernas"],
+  ["Press declinado máquina/barra/mancuernas","Press declinado","Press declinado máquina","Press declinado/fondos","Press declinado/fondos asistidos","Press declinado o fondos asistidos"],
+  ["Aperturas en polea o peck deck","Aperturas polea/peck deck"],
+  ["Cruce de poleas arriba-abajo","Cruce poleas arriba-abajo"],
+  ["Tríceps cuerda","Triceps cuerda"],
+  ["Tríceps polea","Triceps polea"],
+  ["Extensión tríceps sobre cabeza","Tríceps sobre cabeza","Extension triceps sobre cabeza"],
+  ["Jalón al pecho agarre neutro","Jalon al pecho agarre neutro","Jalón neutro"],
+  ["Jalón unilateral en polea alta","Jalon unilateral en polea alta","Jalón unilateral"],
+  ["Pullover polea / brazos rectos","Pullover en polea / brazos rectos","Pullover polea"],
+  ["Remo T o pecho apoyado","Remo pecho apoyado"],
+  ["Encogimientos o farmer carry","Encogimientos","Farmer carry"],
+  ["Peso muerto rumano","RDL","RDL con mancuernas/barra"],
+  ["Prensa de piernas rango seguro","Prensa de piernas","Prensa pies medios","Prensa bilateral","Prensa","Prensa ligera-media"],
+  ["Step-up bajo","Step-up bajo con carga"],
+  ["Extensión de cuádriceps ligera","Extensión cuádriceps ligera","Extensión cuádriceps unilateral ligera"],
+  ["Abducción de cadera","Abduccion de cadera"],
+  ["Reverse pec deck / pájaros","Reverse pec deck / pajaros"],
+  ["Curl bíceps","Curl biceps"]
+];
+
+function aliasesFor(name){
+  for(const g of exerciseAliasGroups){
+    if(g.includes(name)) return g;
+  }
+  return [name];
+}
+
 
 function navigate(page,title){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -205,12 +630,29 @@ $("signupBtn").addEventListener("click",async()=>{
   status("authMsg",data.session?"Cuenta creada ✓":"Cuenta creada. Revisa el email de confirmación.","ok");
 });
 $("logoutBtn").addEventListener("click",()=>supabase.auth.signOut());
-supabase.auth.onAuthStateChange((_e,s)=>{currentUser=s?.user||null;showState();});
+supabase.auth.onAuthStateChange((event,s)=>{
+  const nextUser = s?.user || null;
+  const userChanged = currentUser?.id !== nextUser?.id;
+  currentUser = nextUser;
+
+  // IMPORTANTE: Supabase renueva el token periódicamente en segundo plano.
+  // Antes cada TOKEN_REFRESHED reconstruía toda la pantalla de entrenamiento
+  // y borraba las series que aún no se habían finalizado.
+  if(event === "SIGNED_OUT"){
+    showState();
+    return;
+  }
+  if(event === "SIGNED_IN" && userChanged){
+    showState();
+  }
+  // INITIAL_SESSION ya se resuelve con getSession() al arrancar.
+  // TOKEN_REFRESHED y USER_UPDATED NO deben repintar el entrenamiento.
+});
 
 async function getExerciseHistory(name,limit=120){
   const {data,error}=await supabase.from("workout_sets")
     .select("workout_session_id,exercise_name,set_number,weight_kg,reps,rpe,completed_at")
-    .eq("user_id",currentUser.id).eq("exercise_name",name)
+    .eq("user_id",currentUser.id).in("exercise_name",aliasesFor(name))
     .order("completed_at",{ascending:false}).limit(limit);
   if(error||!data?.length) return [];
   const groups=new Map();
@@ -305,12 +747,12 @@ async function renderWorkout(){
   $("sessionSubtitle").textContent=`Semana ${week} · ${plan.subtitle}`;
   $("todayWorkout").textContent=plan.title;
   $("todayWorkoutHint").textContent=`Semana ${week} · ${plan.subtitle}`;
-  $("warmupText").textContent=plan.warmup;
+  $("warmupText").textContent=`${plan.weekNote ? plan.weekNote + " " : ""}${plan.warmup}`;
   const totalSets=plan.exercises.reduce((sum,e)=>sum+Number(e[1]||0),0);
   $("sessionVolumeBadge").textContent=`${totalSets} series`;
 
   const list=$("exerciseList"); list.innerHTML="";
-  for(const [name,sets,reps,rest] of plan.exercises){
+  for(const [name,sets,reps,rest,note] of plan.exercises){
     const history=await getExerciseHistory(name,80);
     const latest=history[0]||null;
     const suggestion=suggestNext(latest,reps);
@@ -320,6 +762,7 @@ async function renderWorkout(){
         <div class="exercise-heading">
           <div>
             <div class="exercise-name">${name}</div>
+            ${note ? `<div class="exercise-note">${note}</div>` : ""}
           </div>
           <div class="exercise-target">${sets} series · ${reps}<br>${rest}s descanso</div>
         </div>
@@ -356,7 +799,16 @@ async function renderWorkout(){
       row.querySelector(".done-btn").addEventListener("click",()=>{
         row.classList.toggle("done");
         row.querySelector(".done-btn").classList.toggle("active");
+        saveWorkoutDraft({showMessage:true});
         if(row.classList.contains("done")) startTimer(Number(row.dataset.rest)||90);
+      });
+
+      // Cada cambio de kg/reps/RPE se guarda como borrador local.
+      // Si Android recarga la PWA, vuelve del segundo plano o se refresca la sesión,
+      // los datos se recuperan al reconstruir el entrenamiento.
+      row.querySelectorAll("input").forEach(input=>{
+        input.addEventListener("input",scheduleWorkoutDraftSave);
+        input.addEventListener("change",()=>saveWorkoutDraft());
       });
       box.appendChild(row);
     }
@@ -367,6 +819,7 @@ async function renderWorkout(){
         const prev=latest.sets.find(x=>Number(x.set_number)===Number(row.dataset.set));
         populateSetRow(row,prev);
       });
+      saveWorkoutDraft({showMessage:true});
     });
     card.querySelector(".show-history").addEventListener("click",async()=>{
       const drawer=card.querySelector(".history-drawer");
@@ -378,9 +831,20 @@ async function renderWorkout(){
     });
     list.appendChild(card);
   }
+
+  // Si había una sesión sin finalizar, recupera exactamente kg/reps/RPE
+  // y qué series estaban validadas.
+  restoreWorkoutDraft();
 }
 $("weekSelect").addEventListener("change",renderWorkout);
 $("sessionSelect").addEventListener("change",renderWorkout);
+$("workoutNotes").addEventListener("input",scheduleWorkoutDraftSave);
+
+// Antes de que Android cierre/recargue la vista, intenta conservar el borrador.
+window.addEventListener("pagehide",()=>saveWorkoutDraft());
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState === "hidden") saveWorkoutDraft();
+});
 
 $("saveWorkoutBtn").addEventListener("click",async()=>{
   status("workoutMsg","Guardando...");
@@ -402,10 +866,11 @@ $("saveWorkoutBtn").addEventListener("click",async()=>{
     const {error}=await supabase.from("workout_sets").insert(payload);
     if(error) return status("workoutMsg",error.message,"error");
   }
-  status("workoutMsg","Entrenamiento guardado ✓","ok");
+  clearCurrentWorkoutDraft();
   $("workoutNotes").value="";
   clearInterval(timerInterval); timerSeconds=0; renderTimer();
   await Promise.all([renderWorkout(),renderRecentWorkouts()]);
+  status("workoutMsg","Entrenamiento guardado en la nube ✓","ok");
 });
 
 async function renderRecentWorkouts(){
