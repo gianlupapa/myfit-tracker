@@ -1,4 +1,4 @@
-const CACHE = "myfit-v3-2-series-persist";
+const CACHE = "myfit-v3-3-back-ux";
 const STATIC = [
   "./",
   "./index.html",

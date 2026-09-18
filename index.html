@@ -133,12 +133,32 @@
         </div>
 
         <div id="sessionHero" class="session-hero card">
-          <div>
-            <span class="eyebrow">SESIÓN</span>
+          <div class="session-hero-copy">
+            <span class="eyebrow">WORKOUT JOURNAL</span>
             <h2 id="sessionTitle">—</h2>
-            <p id="sessionSubtitle" class="muted">—</p>
+            <p id="sessionSubtitle">—</p>
+            <div id="sessionFocus" class="focus-chips"></div>
           </div>
-          <span id="sessionVolumeBadge" class="pill">0 series</span>
+          <div class="session-hero-side">
+            <span id="sessionVolumeBadge" class="hero-series">0 series</span>
+            <span class="hero-label">HOY</span>
+          </div>
+        </div>
+
+        <div id="backGoalCard" class="back-goal card hidden">
+          <div class="back-goal-head">
+            <div><span class="eyebrow">OBJETIVO DOMINADAS</span><h3>Más fuerza. Mejor postura.</h3></div>
+            <div class="pullup-icon">↑</div>
+          </div>
+          <div class="back-goal-stats">
+            <div><span>Última asistencia</span><strong id="pullupAssistance">—</strong></div>
+            <div><span>Reps asistidas</span><strong id="pullupVolume">—</strong></div>
+            <div><span>Reps libres</span><strong id="pullupFree">—</strong></div>
+          </div>
+          <div class="posture-mini">
+            <strong>Postura · 2×/semana · 8 min</strong>
+            <span>Wall slides 2×12 · Band pull-aparts 2×15 · Y-raise 2×12 · Bird-dog 2×8/lado · pectoral 2×30 s</span>
+          </div>
         </div>
 
         <details id="warmupCard" class="card details-card">

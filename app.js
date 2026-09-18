@@ -163,17 +163,17 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 4 · anchura dorsal + trapecio",
-      warmup:"Hombros abajo antes de tirar; prioriza conexión dorsal y técnica.",
+      title:"Espalda · dominadas + romboide + lumbar",
+      subtitle:"Semana 4 · base escapular y técnica",
+      warmup:"5-7 min suaves · movilidad torácica · 2×8 scapular pull-up asistida o depresión escapular en polea. En los remos: junta escápulas 1-2 s antes de volver.",
       exercises:[
-        ["Jalón al pecho agarre neutro",4,"8-10",90,"Anchura dorsal. Hombros abajo antes de tirar."],
-        ["Jalón unilateral en polea alta",4,"10-12/lado",75,"Codo hacia la cadera para dorsal bajo."],
-        ["Pullover polea / brazos rectos",3,"12-15",60,"Conectar dorsal sin bíceps."],
-        ["Remo pecho apoyado",3,"10-12",75,"Espalda media sin cargar lumbar."],
-        ["Face pull",3,"15",60,"Trapecio medio + deltoide posterior."],
-        ["Encogimientos o farmer carry",3,"12 / 30 m",75,"Trapecio superior."],
-        ["Curl bíceps",3,"10-12",60,"Control."]
+        ["Dominada asistida agarre neutro",4,"6-8",90,"Objetivo: patrón limpio. Registra los kg de asistencia; menos ayuda = progreso."],
+        ["Remo pecho apoyado codos 45-60°",4,"10-12",90,"Romboides + espalda media. Pausa 1-2 s atrás."],
+        ["Remo sentado polea agarre neutro",3,"12",75,"Retracción escapular, pecho alto y sin balanceo."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Dorsal; codo hacia la cadera."],
+        ["Face pull",3,"15",60,"Trapecio medio + deltoide posterior. Sin encoger hombros."],
+        ["Extensión lumbar 45°",3,"12",60,"Erectores + glúteo. Columna neutra; no hiperextender arriba."],
+        ["Curl bíceps",3,"10-12",60,"Control; apoyo a la tracción."]
       ]
     }
   },
@@ -209,17 +209,18 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 5 · progresión controlada",
-      warmup:"Misma estructura de semana 4; progresa solo si la técnica se mantiene.",
+      title:"Espalda · dominadas + romboide + lumbar",
+      subtitle:"Semana 5 · consolidar base",
+      warmup:"Mantén la misma técnica de semana 4. Si completas todas las dominadas asistidas con RPE ≤8, reduce la asistencia 2,5-5 kg.",
       exercises:[
-        ["Jalón al pecho agarre neutro",4,"8-10",90,"Anchura dorsal. Hombros abajo antes de tirar."],
-        ["Jalón unilateral en polea alta",4,"10-12/lado",75,"Codo hacia la cadera para dorsal bajo."],
-        ["Pullover polea / brazos rectos",3,"12-15",60,"Conectar dorsal sin bíceps."],
-        ["Remo pecho apoyado",3,"10-12",75,"Espalda media sin cargar lumbar."],
-        ["Face pull",3,"15",60,"Trapecio medio + deltoide posterior."],
-        ["Encogimientos o farmer carry",3,"12 / 30 m",75,"Trapecio superior."],
-        ["Curl bíceps",3,"10-12",60,"Control."]
+        ["Dominada asistida agarre neutro",4,"6-8",90,"Intenta usar ligeramente menos asistencia que la semana anterior."],
+        ["Remo pecho apoyado codos 45-60°",4,"10",90,"Más carga solo si puedes mantener 2 s de retracción escapular."],
+        ["Remo sentado polea agarre neutro",3,"10-12",75,"Pausa 2 s con escápulas juntas."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Dorsal bajo; no gires el tronco."],
+        ["Face pull",3,"15",60,"Postura y trapecio medio/inferior."],
+        ["Extensión lumbar 45°",3,"12-15",60,"Control 3 s en la bajada."],
+        ["Farmer carry",2,"30-40 m",75,"Trapecio + core; torso alto."],
+        ["Curl bíceps",2,"10-12",60,"Sin fallo."]
       ]
     }
   },
@@ -255,17 +256,19 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 6 · dorsal ancho + densidad",
-      warmup:"Tracciones fuertes con control; codo hacia el bolsillo en el unilateral.",
+      title:"Espalda · construir la dominada",
+      subtitle:"Semana 6 · fuerza específica + espalda media",
+      warmup:"Prioridad absoluta a la dominada. Las negativas deben ser lentas y sin dolor de hombro/codo.",
       exercises:[
-        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
-        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
-        ["Pullover polea",4,"12",60,"Tensión continua."],
-        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
-        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
-        ["Encogimientos",4,"10-12",75,"Trapecio."],
-        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+        ["Scapular pull-up",2,"8",45,"Solo mover escápulas: hombros abajo y pecho alto."],
+        ["Dominada asistida agarre neutro",5,"5-6",105,"Menos asistencia progresivamente; deja 1-2 reps en reserva."],
+        ["Dominada negativa",3,"3",90,"Sube con ayuda y baja en 4-5 s."],
+        ["Remo T pecho apoyado",4,"8-10",90,"Grosor de espalda. No pierdas apoyo del pecho."],
+        ["Remo sentado polea con pausa",3,"10",75,"Pausa 2 s atrás para romboides."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior + romboides."],
+        ["Extensión lumbar 45°",3,"12-15",60,"Erectores y glúteo; rango controlado."],
+        ["Farmer carry",3,"30 m",75,"Postura alta y abdomen firme."],
+        ["Curl martillo",2,"10-12",60,"Braquial/antebrazo para mejorar tracción."]
       ]
     }
   },
@@ -301,17 +304,19 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 7 · dorsal ancho + densidad",
-      warmup:"Técnica limpia; no balancees en tracciones ni encogimientos.",
+      title:"Espalda · construir la dominada",
+      subtitle:"Semana 7 · progresar asistencia y control",
+      warmup:"Repite el patrón de semana 6. Busca reducir asistencia o añadir una repetición, nunca ambas a la vez.",
       exercises:[
-        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
-        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
-        ["Pullover polea",4,"12",60,"Tensión continua."],
-        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
-        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
-        ["Encogimientos",4,"10-12",75,"Trapecio."],
-        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+        ["Scapular pull-up",2,"8-10",45,"Control escapular."],
+        ["Dominada asistida agarre neutro",5,"5-6",105,"Reduce 2,5-5 kg de asistencia si completaste semana 6."],
+        ["Dominada negativa",3,"3",90,"Bajada 5 s; sin balanceo."],
+        ["Remo T pecho apoyado",4,"8-10",90,"Grosor y romboides."],
+        ["Remo sentado polea con pausa",3,"10",75,"2 s de retracción escapular."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Espalda alta/posterior."],
+        ["Extensión lumbar 45°",3,"12-15",60,"Añade carga ligera solo si la técnica es perfecta."],
+        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
+        ["Curl martillo",2,"10-12",60,"Sin llegar al fallo."]
       ]
     }
   },
@@ -347,17 +352,18 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 8 · volumen estético",
-      warmup:"Dorsal ancho + densidad. Mantén tensión continua.",
+      title:"Espalda · grosor + postura + dominadas",
+      subtitle:"Semana 8 · romboide y trapecio medio/inferior",
+      warmup:"Esta fase prioriza espalda central. En los remos, evita llevar hombros hacia delante al final del recorrido.",
       exercises:[
-        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
-        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
-        ["Pullover polea",4,"12",60,"Tensión continua."],
-        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
-        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
-        ["Encogimientos",4,"10-12",75,"Trapecio."],
-        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+        ["Dominada asistida agarre neutro",4,"6-8",105,"Menos asistencia que semanas 6-7 si puedes."],
+        ["Remo T pecho apoyado",4,"8",90,"Más pesado, técnica estricta."],
+        ["Remo polea agarre ancho",4,"10",75,"Codos 45-60°; romboides + trapecio medio."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Mantener dorsal bajo."],
+        ["Y-raise en banco inclinado/polea",3,"12-15",60,"Trapecio inferior; hombros lejos de orejas."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Romboide/posterior."],
+        ["Extensión lumbar 45° con carga ligera",3,"10-12",75,"Progresión suave de erectores."],
+        ["Curl martillo",2,"10",60,"Apoyo a dominadas."]
       ]
     }
   },
@@ -393,17 +399,19 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 9 · volumen estético",
-      warmup:"Mantén control de escápulas y codo hacia el bolsillo.",
+      title:"Espalda · grosor + postura + dominadas",
+      subtitle:"Semana 9 · consolidación de espalda central",
+      warmup:"Mantén el foco en romboides: cada remo termina con 1-2 s de escápulas juntas, sin elevar hombros.",
       exercises:[
-        ["Dominada asistida o jalón neutro",4,"6-8",90,"Dorsal ancho."],
-        ["Jalón unilateral",4,"10/lado",75,"Dorsal bajo, codo a bolsillo."],
-        ["Pullover polea",4,"12",60,"Tensión continua."],
-        ["Remo T o pecho apoyado",4,"8-10",90,"Densidad."],
-        ["Reverse pec deck / pájaros",3,"15",60,"Deltoide posterior."],
-        ["Encogimientos",4,"10-12",75,"Trapecio."],
-        ["Curl martillo",3,"10-12",60,"Braquial y antebrazo."]
+        ["Dominada asistida agarre neutro",5,"5-6",105,"Busca menor asistencia manteniendo reps limpias."],
+        ["Remo T pecho apoyado",4,"8",90,"Grosor de espalda."],
+        ["Remo polea agarre ancho",4,"10",75,"Espalda media/romboides."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Dorsal bajo."],
+        ["Y-raise en banco inclinado/polea",3,"12-15",60,"Trapecio inferior y postura."],
+        ["Reverse pec deck / pájaros",3,"15",60,"Control escapular."],
+        ["Extensión lumbar 45° con carga ligera",3,"10-12",75,"Erectores sin hiperextensión."],
+        ["Farmer carry",2,"40 m",75,"Torso alto y estable."],
+        ["Curl martillo",2,"10",60,"Sin fallo."]
       ]
     }
   },
@@ -439,17 +447,20 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 10 · calidad de tracción",
-      warmup:"Tracciones controladas; no busques récords.",
+      title:"Espalda · fuerza de dominada",
+      subtitle:"Semana 10 · transición a dominada libre",
+      warmup:"Si ya puedes hacer dominadas libres limpias, hazlas primero. Si no, empieza directamente con asistidas. Nada de balanceo o patada.",
       exercises:[
-        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
-        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
-        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
-        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
+        ["Dominada libre (si salen limpias)",3,"1-3",120,"Deja siempre 1 repetición en reserva. Si aún no salen, omite y pasa a asistidas."],
+        ["Dominada asistida agarre neutro",4,"5-6",105,"Reduce asistencia de forma gradual."],
+        ["Remo T / pecho apoyado pesado",4,"6-8",105,"Fuerza y grosor."],
+        ["Remo sentado polea con pausa",4,"8-10",75,"2 s atrás; romboides."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Dorsal bajo."],
+        ["Y-raise en banco inclinado/polea",3,"12",60,"Trapecio inferior."],
         ["Face pull",3,"15",60,"Postura."],
-        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
-        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+        ["Extensión lumbar 45°",3,"10-12",75,"Erectores + glúteo."],
+        ["Farmer carry",3,"40 m",75,"Trapecio + core."],
+        ["Curl bíceps",2,"10",60,"Sin exceso."]
       ]
     }
   },
@@ -485,17 +496,20 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 11 · calidad de tracción",
-      warmup:"Control técnico y buena postura.",
+      title:"Espalda · fuerza de dominada",
+      subtitle:"Semana 11 · más reps libres / menos asistencia",
+      warmup:"Objetivo: mejorar calidad, no hacer récord al fallo. Si las libres salen, intenta 1 repetición más total que en semana 10.",
       exercises:[
-        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
-        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
-        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
-        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
-        ["Face pull",3,"15",60,"Postura."],
-        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
-        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+        ["Dominada libre (si salen limpias)",3,"1-4",120,"Suma reps totales con técnica limpia y 1 RIR."],
+        ["Dominada asistida agarre neutro",4,"5-6",105,"Menos asistencia que semana 10 si completaste las series."],
+        ["Remo T / pecho apoyado pesado",4,"6-8",105,"Fuerza de espalda media."],
+        ["Remo sentado polea con pausa",4,"8-10",75,"Retracción 2 s."],
+        ["Jalón unilateral en polea alta",3,"10/lado",75,"Dorsal."],
+        ["Y-raise en banco inclinado/polea",3,"12",60,"Trapecio inferior/postura."],
+        ["Face pull",3,"15",60,"Trapecio medio + posterior."],
+        ["Extensión lumbar 45°",3,"10-12",75,"Control lumbar."],
+        ["Farmer carry",3,"40 m",75,"Postura alta."],
+        ["Curl bíceps",2,"10",60,"Sin fallo."]
       ]
     }
   },
@@ -529,17 +543,17 @@ const weeklyPlans = {
       ]
     },
     back:{
-      title:"Espalda/dorsal + trapecio + deltoide posterior + bíceps",
-      subtitle:"Semana 12 · descarga/evaluación",
-      warmup:"Calidad técnica. No buscar marcas.",
+      title:"Espalda · descarga + prueba técnica",
+      subtitle:"Semana 12 · evaluar dominadas y postura",
+      warmup:"Semana de descarga. Las dominadas no son un test al fallo: deja 2 reps en reserva y registra tu máximo limpio del bloque aparte en notas.",
       exercises:[
-        ["Jalón neutro",4,"8",90,"Calidad de dorsales."],
-        ["Jalón unilateral",3,"10-12/lado",75,"Control."],
-        ["Pullover polea",3,"12-15",60,"Dorsal bajo."],
-        ["Remo pecho apoyado",3,"10",75,"Mantener fuerza."],
-        ["Face pull",3,"15",60,"Postura."],
-        ["Farmer carry",3,"30-40 m",75,"Trapecio + core."],
-        ["Curl bíceps",3,"10-12",60,"2-3 series. Sin exceso."]
+        ["Dominadas limpias",3,"submáximas",120,"Deja 2 reps en reserva. Registra reps por serie."],
+        ["Remo pecho apoyado codos 45-60°",3,"10",90,"Romboide y espalda media."],
+        ["Remo sentado polea con pausa",3,"10",75,"Retracción escapular."],
+        ["Jalón unilateral en polea alta",2,"12/lado",75,"Dorsal técnico."],
+        ["Face pull",2,"15",60,"Postura."],
+        ["Y-raise en banco inclinado/polea",2,"15",60,"Trapecio inferior."],
+        ["Extensión lumbar 45°",2,"12",60,"Descarga lumbar técnica."]
       ]
     }
   }
@@ -579,7 +593,17 @@ const exerciseAliasGroups = [
   ["Extensión de cuádriceps ligera","Extensión cuádriceps ligera","Extensión cuádriceps unilateral ligera"],
   ["Abducción de cadera","Abduccion de cadera"],
   ["Reverse pec deck / pájaros","Reverse pec deck / pajaros"],
-  ["Curl bíceps","Curl biceps"]
+  ["Curl bíceps","Curl biceps"],
+  ["Dominada asistida agarre neutro"],
+  ["Dominada libre (si salen limpias)","Dominadas limpias"],
+  ["Scapular pull-up"],
+  ["Dominada negativa"],
+  ["Remo pecho apoyado codos 45-60°","Remo pecho apoyado"],
+  ["Remo sentado polea agarre neutro","Remo sentado polea con pausa"],
+  ["Remo T pecho apoyado","Remo T / pecho apoyado pesado","Remo T o pecho apoyado"],
+  ["Remo polea agarre ancho"],
+  ["Y-raise en banco inclinado/polea"],
+  ["Extensión lumbar 45°","Extensión lumbar 45° con carga ligera"]
 ];
 
 function aliasesFor(name){
@@ -674,7 +698,7 @@ function repRangeTop(target){
   const nums=String(target).match(/\d+/g)?.map(Number)||[];
   return nums.length?Math.max(...nums.slice(0,2)):null;
 }
-function suggestNext(latest,target){
+function suggestNext(latest,target,name=""){
   if(!latest?.sets?.length) return "Primera sesión";
   const weighted=latest.sets.filter(s=>Number(s.weight_kg)>0 && Number(s.reps)>0);
   if(!weighted.length) return "Repite y registra";
@@ -684,8 +708,12 @@ function suggestNext(latest,target){
   const allHit=top?weighted.every(s=>Number(s.reps)>=top):false;
   const rpes=weighted.map(s=>Number(s.rpe)).filter(n=>n>0);
   const avgRpe=rpes.length?rpes.reduce((a,b)=>a+b,0)/rpes.length:null;
-  if(same&&allHit&&(avgRpe===null||avgRpe<=8)) return `Prueba ${weights[0]+2.5} kg`;
-  return `Mantén ${weights[0]} kg`;
+  const isAssisted = /dominada asistida/i.test(name);
+  if(same&&allHit&&(avgRpe===null||avgRpe<=8)){
+    if(isAssisted) return `Prueba ${Math.max(0,weights[0]-2.5)} kg ayuda`;
+    return `Prueba ${weights[0]+2.5} kg`;
+  }
+  return isAssisted ? `Mantén ${weights[0]} kg ayuda` : `Mantén ${weights[0]} kg`;
 }
 
 function populateSetRow(row,prev){
@@ -740,11 +768,41 @@ async function renderExerciseHistoryDrawer(drawer,name){
   });
 }
 
+async function renderBackGoalCard(session){
+  const card=$("backGoalCard");
+  if(!card) return;
+  if(session!=="back"){
+    card.classList.add("hidden");
+    return;
+  }
+  card.classList.remove("hidden");
+  const assisted=await getExerciseHistory("Dominada asistida agarre neutro",100);
+  const free=await getExerciseHistory("Dominada libre (si salen limpias)",100);
+  const latestAssisted=assisted[0]||null;
+  const latestFree=free[0]||null;
+  const assistance=latestAssisted?.sets?.find(s=>Number(s.weight_kg)>=0)?.weight_kg;
+  const assistedReps=latestAssisted?.sets?.reduce((n,s)=>n+Number(s.reps||0),0)||0;
+  const freeReps=latestFree?.sets?.reduce((n,s)=>n+Number(s.reps||0),0)||0;
+  $("pullupAssistance").textContent=assistance!=null?`${assistance} kg ayuda`:"—";
+  $("pullupVolume").textContent=latestAssisted?`${assistedReps} reps`:"—";
+  $("pullupFree").textContent=latestFree?`${freeReps} reps`:"—";
+}
+
 async function renderWorkout(){
   if(!currentUser) return;
   const week=Number($("weekSelect").value),session=$("sessionSelect").value,plan=planFor(session,week);
+  await renderBackGoalCard(session);
+  $("sessionHero").dataset.session=session;
   $("sessionTitle").textContent=plan.title;
   $("sessionSubtitle").textContent=`Semana ${week} · ${plan.subtitle}`;
+  const focusMap={
+    leg:["GLÚTEO","RODILLA","CORE"],
+    chest:["PECHO","DELTOIDE","TRÍCEPS"],
+    back:["DOMINADAS","ROMBOIDE","LUMBAR"],
+    homeA:["MOVILIDAD","CORE","CARDIO"],
+    homeB:["POSTURA","MOVILIDAD","RECUP."]
+  };
+  $("sessionFocus").innerHTML=(focusMap[session]||[]).map(x=>`<span>${x}</span>`).join("");
   $("todayWorkout").textContent=plan.title;
   $("todayWorkoutHint").textContent=`Semana ${week} · ${plan.subtitle}`;
   $("warmupText").textContent=`${plan.weekNote ? plan.weekNote + " " : ""}${plan.warmup}`;
@@ -755,7 +813,7 @@ async function renderWorkout(){
   for(const [name,sets,reps,rest,note] of plan.exercises){
     const history=await getExerciseHistory(name,80);
     const latest=history[0]||null;
-    const suggestion=suggestNext(latest,reps);
+    const suggestion=suggestNext(latest,reps,name);
     const card=document.createElement("article"); card.className="exercise-card";
     card.innerHTML=`
       <div class="exercise-top">
@@ -772,7 +830,7 @@ async function renderWorkout(){
         </div>
       </div>
       <div class="exercise-body">
-        <div class="set-head"><span></span><span>KG</span><span>REPS</span><span>RPE</span><span></span></div>
+        <div class="set-head"><span></span><span>${/dominada asistida/i.test(name)?"AYUDA":"KG"}</span><span>REPS</span><span>RPE</span><span></span></div>
         <div class="set-box"></div>
       </div>
       <div class="exercise-actions">
@@ -787,7 +845,7 @@ async function renderWorkout(){
       const row=document.createElement("div"); row.className="set-row"; row.dataset.exercise=name; row.dataset.set=s; row.dataset.rest=rest;
       row.innerHTML=`
         <span class="set-index">S${s}</span>
-        <input class="kg" type="number" min="0" max="500" step="0.5" inputmode="decimal" placeholder="kg">
+        <input class="kg" type="number" min="0" max="500" step="0.5" inputmode="decimal" placeholder="${/dominada asistida/i.test(name)?"kg ayuda":"kg"}">
         <input class="reps" type="number" min="0" max="200" step="1" inputmode="numeric" placeholder="reps">
         <input class="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="RPE">
         <button class="done-btn" type="button" aria-label="Completar serie">✓</button>`;

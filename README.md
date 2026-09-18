@@ -1,31 +1,28 @@
-# MyFit Tracker V3.2 — FIX crítico de registro de series
+# MyFit Tracker V3.3 — espalda progresiva + UX refresh
 
-Esta versión corrige el problema por el que, durante un entrenamiento en móvil,
-los kg/repeticiones/RPE podían desaparecer de repente.
+## Entrenamiento de espalda actualizado
+- Semanas 4-5: base escapular, romboide y lumbar.
+- Semanas 6-7: dominada asistida + negativas + fuerza específica.
+- Semanas 8-9: grosor de espalda central, romboides y trapecio inferior.
+- Semanas 10-11: transición progresiva a dominadas libres.
+- Semana 12: descarga y evaluación técnica.
+- Extensión lumbar progresiva y controlada.
+- Bloque de postura 8 min, 2 veces por semana.
 
-## Causa corregida
-Supabase renueva el token de autenticación periódicamente. La V3.1 reaccionaba
-a cualquier cambio de autenticación reconstruyendo toda la pantalla de entreno.
-Eso podía borrar del formulario las series que aún no se habían guardado al final.
+## UX/UI
+Inspiración aplicada de las referencias facilitadas por el usuario:
+- dark mode más premium
+- acento lima/neón más protagonista
+- cabecera de entrenamiento tipo workout journal
+- chips de foco muscular
+- tarjeta específica Objetivo dominadas
+- cards más limpias y redondeadas
+- validación de serie más visible
 
-## Protección añadida
-1. TOKEN_REFRESHED ya NO reconstruye la pantalla de entrenamiento.
-2. Kg/reps/RPE se guardan automáticamente como borrador local mientras escribes.
-3. Al pulsar ✓ se guarda el borrador inmediatamente.
-4. Se conserva también qué series estaban validadas.
-5. Si Android recarga la PWA o vuelves desde segundo plano, el borrador se recupera.
-6. Al pulsar Finalizar y guardar, se guarda en Supabase y se elimina el borrador local.
-7. No requiere SQL ni cambios en Supabase.
+## Dominadas asistidas
+El campo KG pasa a significar AYUDA en ese ejercicio. Menos kg de ayuda = progreso. La sugerencia automática lo interpreta correctamente.
 
-## Actualización
-Sustituye todos los archivos en GitHub y haz commit:
-`V3.2 fix persistencia series`
+## Datos
+No requiere SQL nuevo. Conserva Supabase, histórico y borradores de la V3.2.
 
-Espera a Cloudflare Deployment -> Success y vuelve a abrir la PWA.
-
-## Prueba recomendada
-- Escribe kg + reps + RPE en una serie.
-- Pulsa ✓.
-- Espera al menos un minuto y cambia la app a segundo plano unos segundos.
-- Vuelve: la serie debe seguir exactamente igual.
-- Cierra y vuelve a abrir la PWA antes de Finalizar: el borrador debe recuperarse.
+Commit recomendado: `V3.3 back progression + UX refresh`
